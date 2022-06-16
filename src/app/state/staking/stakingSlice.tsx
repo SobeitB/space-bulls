@@ -19,7 +19,7 @@ export const counterSlice = createSlice({
       },
 
       setNftNotStaking: (state, action: PayloadAction<any[]>) => {
-         state.nftStaking = action.payload
+         state.nftNotStaking = action.payload
       },
    },
 })

@@ -21,10 +21,8 @@ import { useAppSelector } from "../../app/hooks";
 import selectedNft from '../../assets/img/selectedNft.svg'
 import {useGetNotStakingNft} from '../../hooks/getNotStakingNft'
 import {Modal} from 'web3uikit'
+import {useNotification} from 'web3uikit';
 
-// interface props {
-//    onModal:() => void;
-// }
 
 interface stakingI {
    token_id:string,
@@ -38,6 +36,7 @@ const StakingOnly = () => {
    const stakingOrUnstaking = dedicatedNfts.some((dedicatedNft:stakingI) => dedicatedNft.isStaking) ? 'Unstake' : 'Stake'
    const staking = useAppSelector(state => state.staking)
    const AllNftStaking = [...staking.nftNotStaking, ...staking.nftStaking] 
+   const dispatchNotification = useNotification();
 
    const onDedicatedNft = useCallback((nft: stakingI) => () => {
       if(dedicatedNfts.length) {
@@ -64,11 +63,29 @@ const StakingOnly = () => {
       setModal(!isModal)
    }, [isModal])
 
+   const handleNewNotification = useCallback((
+      type: any,
+      text:string,
+      icon?: any, 
+   ) => {
+      dispatchNotification({
+         type,
+         message: text,
+         title: type,
+         icon,
+         position: 'topR',
+      });
+   }, [dispatchNotification])
+
    const onIsStaking = useCallback((type:string) => () => {
       if(dedicatedNfts.length) {
-         console.log(dedicatedNfts)
-      } 
-   }, [dedicatedNfts])
+      
+         handleNewNotification('success', type === 'Stake' ? 'You have successfully staking the nft.' : 'You have successfully unStaking the nft.')
+      } else {
+         handleNewNotification('error', 'Select at least one nft.')
+      }
+
+   }, [dedicatedNfts, handleNewNotification])
 
    useGetNotStakingNft()
 

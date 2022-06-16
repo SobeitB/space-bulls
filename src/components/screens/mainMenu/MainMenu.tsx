@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { 
    ContainerInfo,
    InfoBlock,
@@ -15,7 +15,7 @@ export const MainMenu = () => {
    const {pathname} = useLocation();
    const navigate = useNavigate()
    const staking = useAppSelector(state => state.staking)
-
+   console.log(staking)
    const onNavigate = useCallback((to:string) => () => {
       navigate(to)
    }, [navigate])
