@@ -1,11 +1,11 @@
-import { ConnectWallet } from "../ConnectBtn"
+import { ConnectWallet } from "../../shared/ConnectBtn"
 import { 
    HeaderComp,
    Container,
    ContainerHeader,
    Logo
 } from "./header.styled"
-import logo from '../../assets/img/logo.png'
+import logo from '../../../assets/img/logo.png'
 
 export const Header = () => {
 

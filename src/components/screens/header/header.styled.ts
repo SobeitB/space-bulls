@@ -39,6 +39,11 @@ export const Logo = styled.img`
       width:150px;
       height:150px;
    }
+
+   @media (max-width:350px) {
+      width:125px;
+      height:120px;
+   }
 `
 
 export const Address = styled.p`

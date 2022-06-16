@@ -12,7 +12,7 @@ export const useInitNft = (
       if(isAuthenticated) {
          getNFTBalances({
             params: {
-               address: typeof account === "string" ? account : '', // 0xa5E49ABB65C2a1C4a742023b5475c52De9bb0658
+               address: '0xa5E49ABB65C2a1C4a742023b5475c52De9bb0658', // 0xa5E49ABB65C2a1C4a742023b5475c52De9bb0658
                chain:'0x1'
             },
             onSuccess(data) {
@@ -25,6 +25,7 @@ export const useInitNft = (
                      if(nft.symbol === "TSB") {
                         return true
                      }
+                     return false
                   })
          
                   setBull3D(Bulls)
@@ -34,7 +35,7 @@ export const useInitNft = (
    
          getNFTBalances({
             params: {
-               address: typeof account === "string" ? account : '', // typeof account === "string" ? account : ''
+               address: '0xa5E49ABB65C2a1C4a742023b5475c52De9bb0658', // typeof account === "string" ? account : ''
                chain:'polygon'
             },
    
@@ -48,6 +49,7 @@ export const useInitNft = (
                      if(nft.name === "Space Bulls Unboxed") {
                         return true
                      }
+                     return false
                   })
          
                   setBull2D(Bulls)
@@ -55,5 +57,5 @@ export const useInitNft = (
             }
          })
       }
-   }, [getNFTBalances, account, isAuthenticated])
+   }, [getNFTBalances, account, isAuthenticated, setBull2D, setBull3D])
 }

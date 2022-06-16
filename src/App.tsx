@@ -1,7 +1,8 @@
 import {OtherProvider} from './providers/index'
 import {useMoralis} from 'react-moralis'
 import { useEffect } from 'react';
-import { Header } from './components/header/header';
+import { Header } from './components/screens/header/header';
+
 function App() {
   const {
     enableWeb3, 

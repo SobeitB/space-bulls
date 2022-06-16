@@ -15,19 +15,29 @@ import {
    StakeAllBtn,
    ClearNft,
    ContStakeBtn
-} from "../Staking.styled";
-import {stakingI} from '../StakingHome'
+} from "./Staking.styled";
 import { useState, useCallback } from "react";
-import selectedNft from '../../../assets/img/selectedNft.svg'
+import { useAppSelector } from "../../app/hooks";
+import selectedNft from '../../assets/img/selectedNft.svg'
+import {useGetNotStakingNft} from '../../hooks/getNotStakingNft'
+import {Modal} from 'web3uikit'
 
-interface props {
-   onModal:() => void;
-   staking:stakingI[];
+// interface props {
+//    onModal:() => void;
+// }
+
+interface stakingI {
+   token_id:string,
+   reward:number,
+   isStaking:boolean,
 }
 
-const StakingOnly = ({onModal, staking}: props) => {
+const StakingOnly = () => {
+   const [isModal, setModal] = useState<boolean>(false)
    const [dedicatedNfts, setDedicatedNfts] = useState<stakingI[]>([])
    const stakingOrUnstaking = dedicatedNfts.some((dedicatedNft:stakingI) => dedicatedNft.isStaking) ? 'Unstake' : 'Stake'
+   const staking = useAppSelector(state => state.staking)
+   const AllNftStaking = [...staking.nftNotStaking, ...staking.nftStaking] 
 
    const onDedicatedNft = useCallback((nft: stakingI) => () => {
       if(dedicatedNfts.length) {
@@ -50,17 +60,31 @@ const StakingOnly = ({onModal, staking}: props) => {
       setDedicatedNfts([])
    }, [])
 
+   const onModal = useCallback(() => {
+      setModal(!isModal)
+   }, [isModal])
+
    const onIsStaking = useCallback((type:string) => () => {
       if(dedicatedNfts.length) {
          console.log(dedicatedNfts)
       } 
    }, [dedicatedNfts])
 
+   useGetNotStakingNft()
 
    return(
       <>
+         <Modal 
+            isVisible={isModal}
+            onCloseButtonPressed={onModal}
+            onCancel={onModal}
+            onOk={onModal}
+            title="What is Staking?"
+            children={<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu posuere tortor. Maecenas ac suscipit lacus. Fusce at enim sagittis justo accumsan pellentesque. Proin faucibus posuere varius. Nam egestas, purus eget auctor aliquam, sem nisi iaculis tortor, at posuere urna lorem vitae est. Aliquam tempus eu risus vitae aliquet. Nulla suscipit diam eget interdum iaculis. Etiam sed turpis mi. Sed blandit, diam quis rhoncus viverra, magna massa posuere purus, in vulputate magna orci id risus. Curabitur rhoncus libero eget malesuada ultrices. Quisque pellentesque lacus tincidunt, ultrices metus vel, luctus justo. Quisque dapibus lectus vel sem sodales, in mollis nisi hendrerit. Aliquam hendrerit consequat tellus tincidunt sollicitudin. Praesent efficitur mauris sed risus egestas, sed feugiat tortor pretium. </p>}
+         /> 
+
          <TitleCont>
-            <Title>Spacebulls Unboxed ({staking.length})</Title>
+            <Title>Spacebulls Unboxed ({AllNftStaking.length})</Title>
             <IsStaking onClick={onModal}>What is staking?</IsStaking>
          </TitleCont>
 
@@ -75,8 +99,8 @@ const StakingOnly = ({onModal, staking}: props) => {
          </ContStakeBtn>
 
          <StakingNft>
-            {staking.length ? 
-               staking.map((nft:stakingI) => {
+            {AllNftStaking.length ? 
+               AllNftStaking.map((nft:stakingI) => {
                   return(
                      <Nft 
                         key={nft.token_id}
@@ -108,7 +132,7 @@ const StakingOnly = ({onModal, staking}: props) => {
                   )
                })
                :
-               <h1>You don't have any SpaceBulls unboxed</h1>
+               <h1 className="nothing_title">You don't have any SpaceBulls unboxed</h1>
             }
          </StakingNft>
       </>

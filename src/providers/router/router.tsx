@@ -1,49 +1,82 @@
 import { Route, Routes} from "react-router-dom";
 import {Suspense, lazy} from 'react';
-import {Loader} from '../../components/Loader'
-const Staking = lazy(() => import ('../../pages/stakaing/StakingHome'));
-// const Rewards = lazy(() => import ('../../pages/rewards/Rewards'));
-// const MarketPlace = lazy(() => import ('../../pages/marketPlace/MarketPlace'));
+import { LayoutLoader } from "../../components/shared/LayoutPages/LayoutPages";
+import { LayoutPage } from "../../components/shared/LayoutPages/LayoutPages";
+import { 
+   Container,
+} from "../../pages/stakaing/Staking.styled";
+import {useLocation, useNavigate} from 'react-router-dom'
+import {useMoralis} from 'react-moralis'
+import {useEffect} from 'react'
+
+import { MainMenu } from "../../components/screens/mainMenu/MainMenu";
+const Home = lazy(() => import ('../../pages/home/Home'));
+const StakingOnly = lazy(() => import ('../../pages/stakaing/StakingOnly'));
+const Rewards = lazy(() => import ('../../pages/rewards/Rewards'));
+const MarketPlace = lazy(() => import ('../../pages/marketPlace/marketPlace'));
 
 export const Router = () => {
+   const {pathname} = useLocation();
+   const navigate = useNavigate()
+   const {account} = useMoralis()
+
+   useEffect(() => {
+      if(!account) {
+         navigate('/')
+      }
+   }, [account, navigate])
+
    return (
-      <Routes>
-         <Route 
-            path="/"
-            element={
-               <Suspense fallback={
-                  <div className="mainLoader"><Loader /></div>
-               }>
-                  <main className='main'>
-                     <Staking />
-                  </main>
-               </Suspense>
-            }  
-         />
+      <Container>
+         {pathname !== '/' && 
+            <MainMenu />
+         }
 
-         {/* <Route 
-            path="/rewards"
-            element={
-               <Suspense fallback={
-                  <div className="mainLoader"><Loader /></div>
-               }>
-                  <main className='main'>
-                     <Rewards />
-                  </main>
-               </Suspense>
-            }  
-         />
+         <Routes>
+            <Route 
+               path="/"
+               element={
+                  <Suspense fallback={ <LayoutLoader /> }>
+                     <LayoutPage>
+                        <Home />
+                     </LayoutPage>
+                  </Suspense>
+               }  
+            />
 
-         <Route 
-            path="/marketPlace"
-            element={
-               <Suspense fallback={<div className="mainLoader"><Loader /></div>}>
-                  <main className='main'>
-                     <MarketPlace />
-                  </main>
-               </Suspense>
-            }  
-         />  */}
-      </Routes>
+            <Route 
+               path="/staking"
+               element={
+                  <Suspense fallback={ <LayoutLoader /> }>
+                     <LayoutPage>
+                        <StakingOnly />
+                     </LayoutPage>
+                  </Suspense>
+               }  
+            />
+
+            <Route 
+               path="/rewards"
+               element={
+                  <Suspense fallback={ <LayoutLoader /> }>
+                     <LayoutPage>
+                        <Rewards />
+                     </LayoutPage>
+                  </Suspense>
+               }  
+            />
+
+            <Route 
+               path="/marketPlace"
+               element={
+                  <Suspense fallback={ <LayoutLoader /> }>
+                     <LayoutPage>
+                        <MarketPlace />
+                     </LayoutPage>
+                  </Suspense>
+               }  
+            /> 
+         </Routes>
+      </Container>
    );
 }

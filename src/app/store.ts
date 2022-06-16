@@ -1,9 +1,9 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
-import userSlice from './state/user/user.sliced'
+import stakingSlice from './state/staking/stakingSlice'
 
 export const store = configureStore({
   reducer: {
-    user:userSlice,
+    staking:stakingSlice
   },
 });
 

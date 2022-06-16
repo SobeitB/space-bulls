@@ -88,6 +88,9 @@ export const Pagination = styled.div`
    width:100%;
    margin:15px 0 20px 0;
    border-bottom: 2px solid #323232;
+   @media (max-width: 330px) {
+      margin: 15px 10px 20px 10px;
+   }
 `
 
 export const PaginationTabs = styled.div`
@@ -108,9 +111,15 @@ export const Tabs = styled.button.attrs((props: propsTabs) => props)`
    font-size:13.5px;
    color:${props => props.active ? '#c3c3c3' : '#919191'};
    border-bottom:2px solid ${props => props.active ? '#f8cb2c' : '#e0ecff'};
+   margin-left:15px;
 
-   &:nth-child(2){
-      margin-left:15px;
+   &:nth-child(1){
+      margin-left:0px;
+   }
+
+   @media (max-width: 400px) {
+      font-size:11px;
+      margin-left:10px;
    }
 `
 
@@ -119,11 +128,19 @@ export const TitleCont = styled.div`
    display: flex;
    align-items: center;
    justify-content: space-between;
+
+   @media (max-width: 330px) {
+      margin:0 10px;
+   }
 `
 
 export const Title = styled.h1`
    color: #f8cb2c;
    font-size:20px;
+
+   @media (max-width: 360px) {
+      font-size:15px;
+   }
 `
 
 export const IsStaking = styled.button`
@@ -133,10 +150,18 @@ export const IsStaking = styled.button`
    cursor: pointer;
    font-size:14px;
    color:#a5a5a5;
+
+   @media (max-width: 360px) {
+      font-size:12px;
+   }
 `
 
-export const StakingNft = styled.div`
-   height:320px;
+interface StakingNftprops {
+   heigth:boolean;
+}
+
+export const StakingNft = styled.div.attrs((props: StakingNftprops) => props)`
+   height:${props => props.heigth ? "100%" : "320px"};
    width:100%;
    display: flex;
    align-items: center;
@@ -160,6 +185,10 @@ export const Nft = styled.div.attrs((props: propsNft) => props)`
    background: #191919;
    border-radius:15px;
    margin-right:25px;
+
+   @media (max-width: 480px) {
+      margin-right:0px;
+   }
 `
 
 export const NftImgBody = styled.div`
@@ -255,6 +284,12 @@ export const StakeAllBtn = styled.button.attrs((props: propsNft) => props)`
    font-size:14px;
    font-weight:bold;
    cursor:pointer;
+
+   @media (max-width: 360px) {
+      font-size:12px;
+      width: 80px;
+      height:30px;
+   }
 `
 
 export const ClearNft = styled(StakeAllBtn)`

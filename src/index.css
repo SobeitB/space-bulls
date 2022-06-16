@@ -40,10 +40,16 @@ html, body, #root, .App {
   justify-content: center;
 }
 
-.sc-ehmTmK, .kgvePt{
+.sc-jIAOiI{
   display:none;
 }
 
+@media (max-width: 450px) {
+  .gEpdue{
+    margin:0 !important;
+    margin-right: 10px !important;
+  }
+}
 
 .lds-ring {
   display: inline-block;
@@ -85,5 +91,21 @@ html, body, #root, .App {
   
   100% {
      transform: rotate(360deg);
+  }
+}
+
+.nothing_title {
+  text-align: center;
+}
+
+@media (max-width:400px) {
+  .nothing_title {
+    font-size:25px;
+  }
+}
+
+@media (max-width:335px) {
+  .nothing_title {
+    font-size:20px;
   }
 }

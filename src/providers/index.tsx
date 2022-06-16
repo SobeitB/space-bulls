@@ -1,13 +1,14 @@
 import { Router } from "./router/router"
-import { AuthProvider } from "./authProvider"
 import {BrowserRouter} from "react-router-dom";
+import {NotificationProvider} from "web3uikit";
+
 
 export const OtherProvider = () => {
    return(
       <BrowserRouter>
-         <AuthProvider>
+         <NotificationProvider>
             <Router />
-         </AuthProvider>
+         </NotificationProvider>
       </BrowserRouter>
    )
 }

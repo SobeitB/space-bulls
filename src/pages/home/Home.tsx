@@ -6,9 +6,21 @@ import {
    Text,
 } from './Home.styled'
 import logo from './Logo.png'
-import { ConnectWallet } from "../ConnectBtn"
+import { ConnectWallet } from "../../components/shared/ConnectBtn"
+import {useNavigate} from 'react-router-dom'
+import {useMoralis} from 'react-moralis'
+import { useEffect } from 'react'
 
 const Home = () => {
+   const navigate = useNavigate()
+   const {account} = useMoralis()
+
+   useEffect(() => {
+      if(account) {
+         navigate('/staking')
+      }
+   }, [account, navigate])
+
    return(
       <Body>
          <BodyLogo>
