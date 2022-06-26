@@ -9,13 +9,19 @@ import {
    InfoBlockBody, 
 } from "../../../pages/stakaing/Staking.styled";
 import {useLocation, useNavigate} from 'react-router-dom'
+import {useMoralisQuery} from 'react-moralis'
 import { useAppSelector } from "../../../app/hooks";
 
 export const MainMenu = () => {
    const {pathname} = useLocation();
+   
+   const {data} = useMoralisQuery("_User", query => 
+      query
+      .equalTo("isAdmin", true)
+   )
+
    const navigate = useNavigate()
    const staking = useAppSelector(state => state.staking)
-   console.log(staking)
    const onNavigate = useCallback((to:string) => () => {
       navigate(to)
    }, [navigate])
@@ -63,9 +69,22 @@ export const MainMenu = () => {
             >MarketPlace</Tabs>
 
             <Tabs
+               onClick={onNavigate("create_product")}  
+               active={pathname === "/create_product"}
+            >Create a product</Tabs>
+
+            {data.length > 0 &&
+               <Tabs
+                  onClick={onNavigate("admin_panel")}  
+                  active={pathname === "/admin_panel"}
+               >Admin Panel</Tabs>
+            }
+
+
+            {/* <Tabs
                onClick={onNavigate("rewards")}  
                active={pathname === "/rewards"}
-            >Rewards</Tabs>
+            >Rewards</Tabs> */}
          </PaginationTabs>
       </Pagination>
    </>

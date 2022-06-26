@@ -15,9 +15,32 @@ import {
 import Pagination from '../../components/screens/Pagination/Pagination'
 import {rewardsI} from '../../types/rewards.interface'
 import {useGetItems} from '../../hooks/getItems'
+import {useNotification} from 'web3uikit';
+import { notifyType} from 'web3uikit/dist/components/Notification/types';
+import { TIconType } from 'web3uikit/dist/components/Icon/collection';
+import { useCallback } from 'react';
 
 const Rewards = () => {
    const {pagesDeferred, setPages, allPages, items} = useGetItems("Rewards")
+   const dispatchNotification = useNotification();
+
+   const handleNewNotification = (
+      type: notifyType,
+      icon?: TIconType,
+   ) => {
+      dispatchNotification({
+         type,
+         message: type === "error" ? 'An error has occurred!' : 'You have successfully made a purchase!',
+         title: type,
+         icon,
+         position: 'topR',
+      });
+   };
+
+   const getReward = useCallback((id:string) => async () => {
+      handleNewNotification('success')
+      handleNewNotification('error')
+   }, [])
 
    return(
       <>
@@ -33,7 +56,7 @@ const Rewards = () => {
                      <Network>Network: polygon</Network>
                      <Description>lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum</Description>
                   </BodyText>
-                  <Claim>Already claimed</Claim>
+                  <Claim onClick={getReward(reward.id)}>Already claimed</Claim>
                </Item>
             ))
             :

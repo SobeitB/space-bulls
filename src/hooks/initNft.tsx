@@ -13,47 +13,31 @@ export const useInitNft = (
          getNFTBalances({
             params: {
                address: '0xa5E49ABB65C2a1C4a742023b5475c52De9bb0658', // 0xa5E49ABB65C2a1C4a742023b5475c52De9bb0658
-               chain:'0x1'
+               chain:'0x1',
+               token_addresses:["0x07a8ba3f4fd4db7f3381c07ee5a309c1aace9c59"]
             },
             onSuccess(data) {
                if(
-                  data !== undefined && data !== null
-                  &&
-                  data!.result !== undefined && data!.result !== null
-               ) {
-                  const Bulls = data!.result.filter((nft) => {
-                     if(nft.symbol === "TSB") {
-                        return true
-                     }
-                     return false
-                  })
-         
-                  setBull3D(Bulls)
-               }
+                  typeof data !== 'undefined' &&
+                  data !== null &&
+                  typeof data.result !== 'undefined'
+               ) setBull3D(data.result)
             }
          })
    
          getNFTBalances({
             params: {
                address: '0xa5E49ABB65C2a1C4a742023b5475c52De9bb0658', // typeof account === "string" ? account : ''
-               chain:'polygon'
+               chain:'polygon',
+               token_addresses:["0x152f18f676576f78acc29d88a43f8fcde996c567"]
             },
    
             onSuccess(data) {
                if(
-                  data !== undefined && data !== null
-                  &&
-                  data!.result !== undefined && data!.result !== null
-               ) {
-                  const Bulls = data!.result.filter((nft) => {
-                     if(nft.name === "Space Bulls Unboxed") {
-                        return true
-                     }
-                     return false
-                  })
-         
-                  setBull2D(Bulls)
-               }
+                  typeof data !== 'undefined' &&
+                  data !== null &&
+                  typeof data.result !== 'undefined'
+               ) setBull2D(data.result)
             }
          })
       }

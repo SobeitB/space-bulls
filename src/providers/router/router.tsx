@@ -10,10 +10,13 @@ import {useMoralis} from 'react-moralis'
 import {useEffect} from 'react'
 
 import { MainMenu } from "../../components/screens/mainMenu/MainMenu";
+import { IsAdminProvider } from "../isAdmin";
 const Home = lazy(() => import ('../../pages/home/Home'));
 const StakingOnly = lazy(() => import ('../../pages/stakaing/StakingOnly'));
 const Rewards = lazy(() => import ('../../pages/rewards/Rewards'));
 const MarketPlace = lazy(() => import ('../../pages/marketPlace/marketPlace'));
+const AdminPanel = lazy(() => import ('../../pages/admin_panel/Admin_panel'));
+const CreateProduct = lazy(() => import ('../../pages/createProduct/createProduct'));
 
 export const Router = () => {
    const {pathname} = useLocation();
@@ -28,7 +31,13 @@ export const Router = () => {
 
    return (
       <Container>
-         {pathname !== '/' && 
+         {
+         (
+            pathname === '/rewards' ||
+            pathname === '/marketPlace' ||
+            pathname === '/staking' 
+         )
+         && 
             <MainMenu />
          }
 
@@ -56,6 +65,30 @@ export const Router = () => {
             />
 
             <Route 
+               path="/create_product"
+               element={
+                  <Suspense fallback={ <LayoutLoader /> }>
+                     <LayoutPage>
+                        <CreateProduct />
+                     </LayoutPage>
+                  </Suspense>
+               }  
+            />
+
+            <Route 
+               path="/admin_panel"
+               element={
+                  <Suspense fallback={ <LayoutLoader /> }>
+                     <LayoutPage>
+                        <IsAdminProvider>
+                           <AdminPanel />
+                        </IsAdminProvider>
+                     </LayoutPage>
+                  </Suspense>
+               }  
+            />
+
+            {/* <Route 
                path="/rewards"
                element={
                   <Suspense fallback={ <LayoutLoader /> }>
@@ -64,7 +97,7 @@ export const Router = () => {
                      </LayoutPage>
                   </Suspense>
                }  
-            />
+            /> */}
 
             <Route 
                path="/marketPlace"

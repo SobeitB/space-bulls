@@ -7,13 +7,14 @@ function App() {
   const {
     enableWeb3, 
     isAuthenticated, 
-    isWeb3Enabled
+    isWeb3Enabled,
   } = useMoralis()
 
   useEffect(() => {
     if (!isWeb3Enabled && isAuthenticated) enableWeb3();
   }, [isWeb3Enabled, isAuthenticated]);
 
+  
   return (
     <div className="App">
       <Header />

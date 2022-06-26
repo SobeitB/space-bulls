@@ -161,14 +161,13 @@ interface StakingNftprops {
 }
 
 export const StakingNft = styled.div.attrs((props: StakingNftprops) => props)`
-   height:${props => props.heigth ? "100%" : "320px"};
    width:100%;
    display: flex;
    align-items: center;
    justify-content: center;
    flex-wrap:wrap;
    margin:0 auto;
-   margin-top:30px;
+   margin:30px 0;
 `
 
 interface propsNft{
@@ -183,8 +182,10 @@ export const Nft = styled.div.attrs((props: propsNft) => props)`
    justify-content: space-between;
    align-items: center;
    background: #191919;
+   border:{props => props.isSelected && '1px solid #f8cb2c'};
    border-radius:15px;
    margin-right:25px;
+   margin-top:25px;
 
    @media (max-width: 480px) {
       margin-right:0px;

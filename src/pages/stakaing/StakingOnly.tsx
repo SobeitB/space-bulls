@@ -16,13 +16,15 @@ import {
    ClearNft,
    ContStakeBtn
 } from "./Staking.styled";
-import { useState, useCallback } from "react";
+import {PaginationPage} from '../../components/shared/PaginationPages/PaginationPages'
+import { useState, useCallback, useRef } from "react";
+import { useMoralis } from "react-moralis";
 import { useAppSelector } from "../../app/hooks";
 import selectedNft from '../../assets/img/selectedNft.svg'
 import {useGetNotStakingNft} from '../../hooks/getNotStakingNft'
-import {Modal} from 'web3uikit'
-import {useNotification} from 'web3uikit';
-
+import {useNotification, Modal} from 'web3uikit';
+import { notifyType} from 'web3uikit/dist/components/Notification/types';
+import { TIconType } from 'web3uikit/dist/components/Icon/collection';
 
 interface stakingI {
    token_id:string,
@@ -31,12 +33,19 @@ interface stakingI {
 }
 
 const StakingOnly = () => {
-   const [isModal, setModal] = useState<boolean>(false)
-   const [dedicatedNfts, setDedicatedNfts] = useState<stakingI[]>([])
-   const stakingOrUnstaking = dedicatedNfts.some((dedicatedNft:stakingI) => dedicatedNft.isStaking) ? 'Unstake' : 'Stake'
-   const staking = useAppSelector(state => state.staking)
-   const AllNftStaking = [...staking.nftNotStaking, ...staking.nftStaking] 
    const dispatchNotification = useNotification();
+   const {chainId} = useMoralis();
+   const staking = useAppSelector(state => state.staking)
+
+   const [isModalStaking, setModalStaking] = useState<boolean>(false)
+   const [isModalWarning, setModalWarning] = useState<boolean>(false)
+   const [dedicatedNfts, setDedicatedNfts] = useState<stakingI[]>([])
+   const AllNftStaking = [...staking.nftNotStaking, ...staking.nftStaking, ] 
+
+   const [pages, setPages] = useState<number>(0)
+
+   let stakingOrUnstaking = useRef('Stake')
+   stakingOrUnstaking.current = dedicatedNfts.some((dedicatedNft:stakingI) => dedicatedNft.isStaking) ? 'Unstake' : 'Stake';
 
    const onDedicatedNft = useCallback((nft: stakingI) => () => {
       if(dedicatedNfts.length) {
@@ -59,14 +68,18 @@ const StakingOnly = () => {
       setDedicatedNfts([])
    }, [])
 
-   const onModal = useCallback(() => {
-      setModal(!isModal)
-   }, [isModal])
+   const onModal = useCallback((type:string) => () => {
+      if(type === 'warning') {
+         setModalWarning(!isModalWarning)
+      } else {
+         setModalStaking(!isModalStaking)
+      }
+   }, [isModalStaking, isModalWarning])
 
    const handleNewNotification = useCallback((
-      type: any,
+      type: notifyType,
       text:string,
-      icon?: any, 
+      icon?: TIconType, 
    ) => {
       dispatchNotification({
          type,
@@ -75,83 +88,117 @@ const StakingOnly = () => {
          icon,
          position: 'topR',
       });
-   }, [dispatchNotification])
+   }, [])
 
-   const onIsStaking = useCallback((type:string) => () => {
+   const onIsStaking = useCallback((type:string) => async () => {
       if(dedicatedNfts.length) {
-      
+         if(chainId !== '0x89') {
+            handleNewNotification('error', 'Select the polygon network')
+            return
+         }
+         // const ethers = Moralis.web3Library;
+
+         // const provider = await Moralis.enableWeb3();
+         // const signer = provider.getSigner()
+
          handleNewNotification('success', type === 'Stake' ? 'You have successfully staking the nft.' : 'You have successfully unStaking the nft.')
       } else {
          handleNewNotification('error', 'Select at least one nft.')
       }
 
-   }, [dedicatedNfts, handleNewNotification])
+   }, [dedicatedNfts, chainId])
 
    useGetNotStakingNft()
-
+   
    return(
       <>
          <Modal 
-            isVisible={isModal}
-            onCloseButtonPressed={onModal}
-            onCancel={onModal}
-            onOk={onModal}
+            isVisible={isModalStaking}
+            onCloseButtonPressed={onModal('staking')}
+            onCancel={onModal('staking')}
+            onOk={onModal('staking')}
             title="What is Staking?"
-            children={<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu posuere tortor. Maecenas ac suscipit lacus. Fusce at enim sagittis justo accumsan pellentesque. Proin faucibus posuere varius. Nam egestas, purus eget auctor aliquam, sem nisi iaculis tortor, at posuere urna lorem vitae est. Aliquam tempus eu risus vitae aliquet. Nulla suscipit diam eget interdum iaculis. Etiam sed turpis mi. Sed blandit, diam quis rhoncus viverra, magna massa posuere purus, in vulputate magna orci id risus. Curabitur rhoncus libero eget malesuada ultrices. Quisque pellentesque lacus tincidunt, ultrices metus vel, luctus justo. Quisque dapibus lectus vel sem sodales, in mollis nisi hendrerit. Aliquam hendrerit consequat tellus tincidunt sollicitudin. Praesent efficitur mauris sed risus egestas, sed feugiat tortor pretium. </p>}
+            children={
+               <div>
+                  <p style={{"marginTop": "5px"}}>Staking your Unboxed SpaceBulls allows them to collect $Antimatter automatically.</p>
+                  <p style={{"marginTop": "15px"}}>As soon as your SpaceBull starts staking, a timer will immediately begin to clock to generate $Antimatter. With enough $Antimatter you will be able to exchange it for ETH, NFTs from SpaceBulls and partner collections, claim various prizes, use it in the p2e game, and more.</p>
+                  <p style={{"margin": "15px 0"}}>IMPORTANT NOTE: While your SpaceBull is staking, you won't be able to sell it on secondary marketplaces like OpenSea. To do this, you'll need to un-stake your SpaceBull directly on this website.</p>
+               </div>
+            }
          /> 
+
+         <Modal 
+            isVisible={isModalWarning} 
+            onCloseButtonPressed={onModal('warning')} 
+            onCancel={onModal('warning')}
+            onOk={onModal('warning')}
+            title="WARNING"
+            children={
+               <div>
+                  <p style={{"marginTop": "5px"}}>You no longer have a matching pair SpaceBull in your wallet, ID 1 </p> {/* заменить на переменную с id нфт, которого не хватает */}
+                  <p style={{"margin": "15px 0"}}>If you proceed to claim $Antimatter collected so far, the total yield will be 1</p> {/* актуальное количество */}
+               </div>
+            }
+         />
 
          <TitleCont>
             <Title>Spacebulls Unboxed ({AllNftStaking.length})</Title>
-            <IsStaking onClick={onModal}>What is staking?</IsStaking>
+            <IsStaking onClick={onModal('staking')}>What is staking?</IsStaking>
          </TitleCont>
 
          <ContStakeBtn>
             <StakeAllBtn 
-               onClick={onIsStaking(stakingOrUnstaking)}
+               onClick={onIsStaking(stakingOrUnstaking.current)}
                isSelected={Boolean(dedicatedNfts.length)}
             >
-               {stakingOrUnstaking}
+               {stakingOrUnstaking.current}
             </StakeAllBtn>
             <ClearNft onClick={onClear}>Clear</ClearNft>
          </ContStakeBtn>
 
          <StakingNft>
             {AllNftStaking.length ? 
-               AllNftStaking.map((nft:stakingI) => {
-                  return(
-                     <Nft 
-                        key={nft.token_id}
-                        isSelected={dedicatedNfts.some((dedicatedNft:stakingI) => dedicatedNft.token_id === nft.token_id)}
-                     >
-                        <NftImgBody>
-                           <NftImg 
-                              alt=""
-                              src={`ipfs://bafybeibftqctvpba6ugogcxvtdcszt2ybo7frv6c35oudsolbe22awdicm/${nft.token_id}.png`}
-                           />
-                           <NftImgText>ID: {nft.token_id}</NftImgText>
-                           {dedicatedNfts.some((dedicatedNft:stakingI) => dedicatedNft.token_id === nft.token_id) &&
-                              <IsSelectedNft>
-                                 <img 
-                                    src={selectedNft}
-                                    alt=""
-                                 />
-                              </IsSelectedNft>
-                           }
-                        </NftImgBody>
+               AllNftStaking.splice(pages, 10).map((nft:stakingI) => (
+                  <Nft 
+                     key={nft.token_id}
+                     isSelected={dedicatedNfts.some((dedicatedNft:stakingI) => dedicatedNft.token_id === nft.token_id)}
+                  >
+                     <NftImgBody>
+                        <NftImg 
+                           alt=""
+                           src={`ipfs://bafybeibftqctvpba6ugogcxvtdcszt2ybo7frv6c35oudsolbe22awdicm/${nft.token_id}.png`}
+                        />
+                        <NftImgText>ID: {nft.token_id}</NftImgText>
+                        {dedicatedNfts.some((dedicatedNft:stakingI) => dedicatedNft.token_id === nft.token_id) &&
+                           <IsSelectedNft>
+                              <img 
+                                 src={selectedNft}
+                                 alt=""
+                              />
+                           </IsSelectedNft>
+                        }
+                     </NftImgBody>
 
-                        <NftInfoBody>
-                           <NftInfoName>The Space Bull #{nft.token_id}</NftInfoName>
-                           <NftInfoYield>{nft.reward === 2 ? 'Matching Pair' : 'No Pair'}</NftInfoYield>
-                           <NftInfoYield>Yield: {50 * nft.reward} $Antimatter</NftInfoYield>
-                           <NftInfoStaking onClick={onDedicatedNft(nft)}>{nft.isStaking ? 'Unstake' : 'Stake'}</NftInfoStaking>
-                        </NftInfoBody>
+                     <NftInfoBody>
+                        <NftInfoName>The Space Bull #{nft.token_id}</NftInfoName>
+                        <NftInfoYield>{nft.reward === 2 ? 'Matching Pair' : 'No Pair'}</NftInfoYield>
+                        <NftInfoYield>Yield: {50 * nft.reward} $Antimatter</NftInfoYield>
+                        <NftInfoStaking onClick={onDedicatedNft(nft)}>{nft.isStaking ? 'Unstake' : 'Stake'}</NftInfoStaking>
+                     </NftInfoBody>
                   </Nft>
-                  )
-               })
+               ))
                :
                <h1 className="nothing_title">You don't have any SpaceBulls unboxed</h1>
             }
          </StakingNft>
+
+         {AllNftStaking.length ? 
+            <PaginationPage
+               pages={pages}
+               setPages={setPages}
+               allPages={AllNftStaking.length}
+            />
+         : ""}
       </>
    );
 }

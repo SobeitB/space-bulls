@@ -7,23 +7,29 @@ export const Body = styled.div`
 `
 
 export const BodyLogo = styled.div`
-   max-width:50%;
+   margin-top:30px;
+   margin-bottom:20px;
+   max-width:33%;
    height: auto;
 
    @media (max-width:1440px) {
-      max-width: 60%;
+      max-width: 45%;
    }
 
    @media (max-width:992px) {
-      max-width: 80%;
+      max-width: 57%;
    }
 
    @media (max-width:768px) {
-      max-width: 500px;
+      max-width: 430px;
    }
 
    @media (max-width:480px) {
       max-width: 100%;
+   }
+
+   @media (max-width:350px) {
+      max-width: 85%;
    }
 `
 
@@ -76,5 +82,9 @@ export const Text = styled.p`
    @media (max-width: 481px) {
       font-size:13px;
       line-height: 1.6;
+   }
+
+   @media (max-width:350px) {
+      width:90%;
    }
 `

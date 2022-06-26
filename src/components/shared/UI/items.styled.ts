@@ -1,16 +1,21 @@
 import styled from 'styled-components'
 
-export const Item = styled.div`
+interface itmeProps {
+   select: boolean
+}
+
+export const Item = styled.div.attrs((props: itmeProps) => props)`
    width:330px;
-   height:230px;
+   min-height:230px;
    border-radius:20px;
    background-color:#171923;
+   border:${props => props.select && '1px solid #f8cb2c'};
 
    display:flex;
    flex-direction:column;
    align-items:center;
-   margin-bottom:25px !important;
-   margin-right:25px;
+   margin-bottom:${(props) => props.select ? '0px' : '25px !important'};
+   margin-right:${(props) => props.select ? '0px' : '25px'};
 
    @media (max-width: 480px) {
       margin-right:0px;
@@ -25,6 +30,7 @@ export const Item = styled.div`
 export const Img = styled.img`
    width:100%;
    height:150px;
+   border-radius:20px 20px 0 0;
 `
 
 export const BodyText = styled.div`
@@ -54,14 +60,14 @@ export const Description = styled.p`
 
 export const Claim = styled.button`
    width:90%;
-   height:35px;
+   min-height:35px;
    background-color:#726f4c;
    color: #25282c;
    font-weight:bold;
    border: none;
    border-radius:5px;
    cursor: pointer;
-   margin-top:10px;
+   margin:10px 0;
 
    &:hover{
       color: #fcfcfc;
