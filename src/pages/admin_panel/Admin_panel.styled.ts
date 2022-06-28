@@ -39,4 +39,5 @@ export const BtnConfrim = styled.button`
    margin-top:20px;
    color:white;
    cursor:pointer;
+   border:none;
 `

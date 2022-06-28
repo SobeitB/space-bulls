@@ -21,6 +21,36 @@ html, body, #root, .App {
   height: 100%;
 }
 
+.AppHome{
+  background-image: url(./assets/img/bgHomePk.png);
+  background-position: 50% 50%;
+  background-size: 100% 100%;
+}
+
+@media (max-width: 992px) {
+  .AppHome{
+    background-image: url(./assets/img/bgHome992.png);
+  }
+}
+
+@media (max-width: 768px) {
+  .AppHome{
+    background-image: url(./assets/img/bgHomePk.png);
+  }
+}
+
+@media (max-width: 480px) {
+  .AppHome{
+    background-image: url(./assets/img/bgHomePk.png);
+  }
+}
+
+@media (max-width: 320px) {
+  .AppHome{
+    background-image: url(./assets/img/bgHomePk.png);
+  }
+}
+
 #root{
   min-height: 100%;
   display: flex; 

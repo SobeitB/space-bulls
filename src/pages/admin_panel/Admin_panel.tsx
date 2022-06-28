@@ -15,10 +15,10 @@ import {
    Claim,
    Description
 } from '../../components/shared/UI/items.styled'
-import {FormPrice} from './components/Form'
+import {FormPrice} from '../../components/shared/Form/Form'
 
 import { useNFTBalances } from "react-moralis";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { PaginationPage } from '../../components/shared/PaginationPages/PaginationPages';
 
 const AdminPanel = () => {
@@ -27,8 +27,8 @@ const AdminPanel = () => {
    const [allNft, setAllNft] = useState<any[]>([]);
    const [pages, setPages] = useState<number>(0)
 
-   const allNftMemo = [...allNft]
-
+   const allNftMemo = useMemo(() => [...allNft], []);
+   
    console.log(allNftMemo)
 
    useEffect(() => {
@@ -66,11 +66,15 @@ const AdminPanel = () => {
             {!isLoading && selectNft.length === 0 &&
                <StakingNft>
                   {allNftMemo.splice(pages, 10).map((nft:any) => {
+                     if(typeof JSON.parse(nft.metadata)?.image !== 'string') {
+                        return ''
+                     }
+
                      return(
                         <Item key={nft.block_number}>
                            <Img 
                               alt=""
-                              src={nft.image}
+                              src={JSON.parse(nft.metadata).image}
                            />
                            <BodyText>
                               <Title>Name: {nft?.name ? nft?.name : 'no name'}</Title>
@@ -104,7 +108,10 @@ const AdminPanel = () => {
             }
 
             {selectNft.length !== 0 && 
-               <FormPrice nft={selectNft[0]} />
+               <FormPrice 
+                  type='admin_panel'
+                  nft={selectNft[0]} 
+               />
             }
 
             {!isLoading && selectNft.length === 0 &&

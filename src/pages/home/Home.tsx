@@ -5,7 +5,7 @@ import {
    Title,
    Text,
 } from './Home.styled'
-import logo from './Logo.png'
+import hub from './Hub.png'
 import { ConnectWallet } from "../../components/shared/ConnectBtn"
 import {useNavigate} from 'react-router-dom'
 import {useMoralis} from 'react-moralis'
@@ -25,7 +25,7 @@ const Home = () => {
       <Body>
          <BodyLogo>
             <Logo 
-               src={logo}
+               src={hub}
                alt=""
             />
          </BodyLogo>

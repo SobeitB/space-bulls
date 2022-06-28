@@ -2,14 +2,15 @@ import {
    Form,
    InputPrice,
    BtnConfrim
-} from '../Admin_panel.styled'
+} from '../../../pages/admin_panel/Admin_panel.styled'
 import {memo, useCallback, useRef, useState} from 'react'
 
 interface FormProps {
-   nft: any;
+   nft?: any;
+   type:string;
 }
 
-export const FormPrice = ({nft}:FormProps) => {
+export const FormPrice = ({nft, type}:FormProps) => {
    const [price, setPrice] = useState<string>('')
 
    const textRef = useRef('');
@@ -25,7 +26,7 @@ export const FormPrice = ({nft}:FormProps) => {
             type="number"
             value={price}        
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPrice(e.target.value)}
-            placeholder="$Antimatter"       
+            placeholder={`${type === 'admin_panel' ? '$Antimatter' : "matic"}`}       
          />
          
          <SendButton onClick={onClick} />

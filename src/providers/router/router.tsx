@@ -35,6 +35,7 @@ export const Router = () => {
          (
             pathname === '/rewards' ||
             pathname === '/marketPlace' ||
+            pathname === '/create_product' ||
             pathname === '/staking' 
          )
          && 

@@ -3,6 +3,7 @@ import styled from 'styled-components'
 export const HeaderComp = styled.header`
    height: 84px;
    border-bottom: 1px solid #292929;
+   background: #181818;
 `
 
 export const Container = styled.div`

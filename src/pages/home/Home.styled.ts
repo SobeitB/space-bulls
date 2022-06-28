@@ -4,10 +4,10 @@ export const Body = styled.div`
    display:flex;
    flex-direction: column;
    align-items: center;
+   justify-content:center;
 `
 
 export const BodyLogo = styled.div`
-   margin-top:30px;
    margin-bottom:20px;
    max-width:33%;
    height: auto;
@@ -41,6 +41,7 @@ export const Logo = styled.img`
 export const Title = styled.h1`
    font-size:2.75rem;
    text-align:center;
+   margin-top: 10px;
    margin-bottom: 24px;
    color:#f8cb2c;
 
@@ -58,7 +59,7 @@ export const Text = styled.p`
    width:75%;
    font-size:1rem;
    line-height: 1.4;
-   margin-bottom: 2.5rem;
+   margin-bottom: 20px;
    text-align:center;
 
    @media (max-width: 1440px) {

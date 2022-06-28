@@ -97,6 +97,11 @@ export const PaginationTabs = styled.div`
    height:50px;
    display: flex;
    align-items: center;
+
+   @media (max-width: 500px) {
+      flex-direction: column;
+      height:170px;
+   }
 `
 
 interface propsTabs{
@@ -120,6 +125,10 @@ export const Tabs = styled.button.attrs((props: propsTabs) => props)`
    @media (max-width: 400px) {
       font-size:11px;
       margin-left:10px;
+   }
+
+   @media (max-width: 500px) {
+      margin-left:0px;
    }
 `
 

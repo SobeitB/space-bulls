@@ -1,9 +1,12 @@
 import {OtherProvider} from './providers/index'
 import {useMoralis} from 'react-moralis'
 import { useEffect } from 'react';
+import { useLocation } from 'react-router';
 import { Header } from './components/screens/header/header';
 
 function App() {
+  const {pathname} = useLocation();
+
   const {
     enableWeb3, 
     isAuthenticated, 
@@ -16,7 +19,7 @@ function App() {
 
   
   return (
-    <div className="App">
+    <div className={`App ${pathname === '/' && 'AppHome'}`}>
       <Header />
       <OtherProvider />
     </div>
