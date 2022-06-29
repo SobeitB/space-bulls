@@ -11,9 +11,40 @@ import {
 import {useLocation, useNavigate} from 'react-router-dom'
 import {useMoralisQuery} from 'react-moralis'
 import { useAppSelector } from "../../../app/hooks";
+import {useWeb3ExecuteFunction, useMoralis} from 'react-moralis'
+import { useEffect, useState } from "react"
+
+import {address_antimatter} from '../../../shared/variable'
+import abi_antimatter from '../../../shared/abi/Antimatter.json'
 
 export const MainMenu = () => {
    const {pathname} = useLocation();
+   const balance = useWeb3ExecuteFunction();
+   const {Moralis, account} = useMoralis()
+   const [balanceMatter, setBalanceMatter] = useState(0)
+
+   useEffect(() => {
+      if(account) {
+         const options = {
+            contractAddress: address_antimatter,
+            functionName: "balanceOf",
+            abi: abi_antimatter.abi,
+            params: {
+               account:account // testnet. eth - account
+            }
+         }
+   
+         balance.fetch({
+            params: options,
+            onSuccess: (res: any) => {
+               setBalanceMatter(Number(Moralis.Units.FromWei(res)))
+            }, 
+            onError: (err:any) => {
+               console.log(err)
+            }
+         })
+      }
+   }, [Moralis, account])
    
    const {data} = useMoralisQuery("_User", query => 
       query
@@ -41,7 +72,7 @@ export const MainMenu = () => {
 
          <InfoBlockBody>
             <InfoText>Balance</InfoText>
-            <InfoBlock>2222</InfoBlock>
+            <InfoBlock>{balanceMatter}</InfoBlock>
          </InfoBlockBody>
 
          <InfoBlockBody>

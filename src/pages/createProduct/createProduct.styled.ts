@@ -1,31 +1,46 @@
 import styled from "styled-components";
 
 export const Title = styled.h1`
-   margin-top:60px;
+   margin-top:20px;
    text-align:center;
 `
 
 export const HowSell = styled.h3`
-   margin-top:20px;
+   margin-top:10px;
    text-align:center;
 `
 
 export const ContainerBtnChange = styled.div`
    width: 60%;
-   margin-top:40px;
+   margin-top:20px;
    display: flex;
    align-items: center;
    justify-content: space-between;
 
-   @media (max-width:770px) {
+   @media (max-width:992px) {
       flex-direction: column;
-      height:200px
    }
 `
 
 interface propsBtn {
    isSelect:boolean;
 }
+
+export const BodyChange = styled.div`
+   display:flex;
+   flex-direction:column;
+   margin:0 10px;
+
+   @media (max-width:992px) {
+      margin-top:30px;
+   }
+`
+
+export const ImgChange = styled.img`
+   width:100%;
+   height:300px;
+   margin-bottom:15px;
+`
 
 export const ButtonChange = styled.button.attrs((props: propsBtn) => props)`
    background:#81e6d9;

@@ -17,14 +17,19 @@ import {
    ContStakeBtn
 } from "./Staking.styled";
 import {PaginationPage} from '../../components/shared/PaginationPages/PaginationPages'
-import { useState, useCallback, useRef } from "react";
-import { useMoralis } from "react-moralis";
+import { useState, useCallback, useRef, useEffect } from "react";
+import { useMoralis, useWeb3ExecuteFunction } from "react-moralis";
 import { useAppSelector } from "../../app/hooks";
 import selectedNft from '../../assets/img/selectedNft.svg'
 import {useGetNotStakingNft} from '../../hooks/getNotStakingNft'
 import {useNotification, Modal} from 'web3uikit';
 import { notifyType} from 'web3uikit/dist/components/Notification/types';
 import { TIconType } from 'web3uikit/dist/components/Icon/collection';
+
+import {address_staking} from '../../shared/variable'
+import abi_staking from '../../shared/abi/SpaceStaking.json'
+import abi_721 from '../../shared/abi/ERC721.json'
+import {networks} from '../../shared/variable'
 
 interface stakingI {
    token_id:string,
@@ -34,18 +39,20 @@ interface stakingI {
 
 const StakingOnly = () => {
    const dispatchNotification = useNotification();
-   const {chainId} = useMoralis();
+   const {chainId, account} = useMoralis();
+   const smart = useWeb3ExecuteFunction();
    const staking = useAppSelector(state => state.staking)
 
    const [isModalStaking, setModalStaking] = useState<boolean>(false)
    const [isModalWarning, setModalWarning] = useState<boolean>(false)
    const [dedicatedNfts, setDedicatedNfts] = useState<stakingI[]>([])
    const AllNftStaking = [...staking.nftNotStaking, ...staking.nftStaking, ] 
-
    const [pages, setPages] = useState<number>(0)
 
    let stakingOrUnstaking = useRef('Stake')
    stakingOrUnstaking.current = dedicatedNfts.some((dedicatedNft:stakingI) => dedicatedNft.isStaking) ? 'Unstake' : 'Stake';
+
+   useGetNotStakingNft()
 
    const onDedicatedNft = useCallback((nft: stakingI) => () => {
       if(dedicatedNfts.length) {
@@ -92,23 +99,124 @@ const StakingOnly = () => {
 
    const onIsStaking = useCallback((type:string) => async () => {
       if(dedicatedNfts.length) {
-         if(chainId !== '0x89') {
+         if(chainId !== networks.ETH_BYTE) {
             handleNewNotification('error', 'Select the polygon network')
             return
          }
-         // const ethers = Moralis.web3Library;
 
-         // const provider = await Moralis.enableWeb3();
-         // const signer = provider.getSigner()
+         if(type === 'Stake') {
 
-         handleNewNotification('success', type === 'Stake' ? 'You have successfully staking the nft.' : 'You have successfully unStaking the nft.')
+            const optionsApprove = {
+               contractAddress: "0xfa7a1979f2e330178578ca87ffc1b6cdabd8f1e3",
+               functionName: "setApprovalForAll",
+               abi: abi_721.abi,
+               params: {
+                  operator:address_staking,  
+                  approved:true,
+               }
+            }
+
+            await smart.fetch({
+               params: optionsApprove,
+               onSuccess: (res: any) => {
+                  console.log(res);
+               }, 
+
+               onError: (err:any) => {
+                  handleNewNotification('error', 'An Error Has Occurred!')
+                  console.log(err)
+               }
+            })
+
+            const optionsStake = {
+               contractAddress: address_staking,
+               functionName: "stake",
+               abi: abi_staking.abi,
+               params: {
+                  tokenIds:dedicatedNfts.map((nft:stakingI) => Number(nft.token_id)),
+               }
+            }
+   
+            await smart.fetch({
+               params: optionsStake,
+               onSuccess: (res: any) => {
+                  console.log(res);
+                  handleNewNotification('success','You have successfully staking the nft.') 
+               }, 
+
+               onError: (err:any) => {
+                  handleNewNotification('error', 'An Error Has Occurred!')
+                  console.log(err)
+               }
+            })
+
+         } else {
+            // unstake
+            const options = {
+               contractAddress: address_staking,
+               functionName: "unstake",
+               abi: abi_staking.abi,
+               params: {
+                  tokenIds:dedicatedNfts.map((nft:stakingI) => Number(nft.token_id)),
+                   
+                  // moralis code
+                  signedTokenIds:'',
+                  nonce:'',
+                  signature:''
+               }
+            }
+   
+            smart.fetch({
+               params: options,
+               onSuccess: (res: any) => {
+                  console.log(res);
+                  handleNewNotification('success','You have successfully unStaking the nft.')
+               }, 
+
+               onError: (err:any) => {
+                  handleNewNotification('error', 'An Error Has Occurred!')
+                  console.log(err)
+               }
+            })
+         }
+
       } else {
          handleNewNotification('error', 'Select at least one nft.')
       }
 
    }, [dedicatedNfts, chainId])
 
-   useGetNotStakingNft()
+   useEffect(() => {
+      if(account) {
+         const options = {
+            contractAddress: address_staking,
+            functionName: "claimable",
+            abi: abi_staking.abi,
+            params: {
+               sender:account,
+               // moralis code
+               signedTokenIds:[]
+            }
+         }
+   
+         smart.fetch({
+            params: options,
+            onSuccess: (res: any) => {
+               console.log(res);
+
+               // проверяем, продавал нфт майннет юзер или нет
+               if(res.pairs !== 0 && res.singles > 0) {
+                 onModal('staking')()
+               }
+            }, 
+   
+            onError: (err:any) => {
+               // handleNewNotification('error', 'An Error Has Occurred!')
+               console.log(err)
+            }
+         })
+      }
+   }, [account])
    
    return(
       <>

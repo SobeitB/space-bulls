@@ -17,28 +17,25 @@ import {
 } from '../../components/shared/UI/items.styled'
 import {FormPrice} from '../../components/shared/Form/Form'
 
-import { useNFTBalances } from "react-moralis";
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { PaginationPage } from '../../components/shared/PaginationPages/PaginationPages';
+import { useNFTBalances, useMoralis} from "react-moralis";
+import { useEffect, useState, useCallback } from "react";
+import {networks} from '../../shared/variable'
 
 const AdminPanel = () => {
    const { getNFTBalances, isLoading } = useNFTBalances();
    const [selectNft, setSelectNft] = useState<any[]>([]);
    const [allNft, setAllNft] = useState<any[]>([]);
-   const [pages, setPages] = useState<number>(0)
-
-   const allNftMemo = useMemo(() => [...allNft], []);
-   
-   console.log(allNftMemo)
+   const {account} = useMoralis();
 
    useEffect(() => {
       getNFTBalances({
          params: {
-            address: '0x7F8e240cd693A61380804b47DcB31A3866b34C7f', // 0xa5E49ABB65C2a1C4a742023b5475c52De9bb0658
-            chain:'0x1'
+            address: typeof account === "string" ? account : '',
+            chain:networks.ETH_BYTE
          },
 
          onSuccess: (value) => {
+            
             if(
                typeof value !== 'undefined' &&
                value !== null &&
@@ -48,14 +45,14 @@ const AdminPanel = () => {
             }
          }
       })
-   }, [])
+   }, [account])
 
    const onSelectNft = useCallback((nft:any, type:string) => () => {
       if(type === 'clear') {
          setSelectNft([])
          return;
       }
-
+      
       setSelectNft([nft])
    }, [])
 
@@ -65,7 +62,8 @@ const AdminPanel = () => {
          <div style={{"marginTop": "40px"}}>
             {!isLoading && selectNft.length === 0 &&
                <StakingNft>
-                  {allNftMemo.splice(pages, 10).map((nft:any) => {
+                  {allNft.map((nft:any) => {
+                     
                      if(typeof JSON.parse(nft.metadata)?.image !== 'string') {
                         return ''
                      }
@@ -111,15 +109,6 @@ const AdminPanel = () => {
                <FormPrice 
                   type='admin_panel'
                   nft={selectNft[0]} 
-               />
-            }
-
-            {!isLoading && selectNft.length === 0 &&
-               
-               <PaginationPage 
-                  pages={pages}
-                  setPages={setPages}
-                  allPages={allNft.length}
                />
             }
          </div>

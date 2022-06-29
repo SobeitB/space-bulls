@@ -14,14 +14,12 @@ import {
 
 import Pagination from '../../components/screens/Pagination/Pagination'
 import {rewardsI} from '../../types/rewards.interface'
-import {useGetItems} from '../../hooks/getItems'
 import {useNotification} from 'web3uikit';
 import { notifyType} from 'web3uikit/dist/components/Notification/types';
 import { TIconType } from 'web3uikit/dist/components/Icon/collection';
 import { useCallback } from 'react';
 
 const Rewards = () => {
-   const {pagesDeferred, setPages, allPages, items} = useGetItems("Rewards")
    const dispatchNotification = useNotification();
 
    const handleNewNotification = (
@@ -46,7 +44,7 @@ const Rewards = () => {
       <>
          <StakingNft heigth={true}>
 
-            {items.length ? items.map((reward:rewardsI) => (
+            {/* {items.length ? items.map((reward:rewardsI) => (
                <Item key={reward.id}>
                   <Img 
                      alt=""
@@ -58,17 +56,17 @@ const Rewards = () => {
                   </BodyText>
                   <Claim onClick={getReward(reward.id)}>Already claimed</Claim>
                </Item>
-            ))
-            :
-            <h1 className="nothing_title">You don't have any awards.</h1>
-         }
+               ))
+               :
+               <h1 className="nothing_title">You don't have any awards.</h1>
+            } */}
          </StakingNft>
 
-         <Pagination 
+         {/* <Pagination 
             pages={pagesDeferred}
             allPages={allPages}
             setPages={setPages}
-         />
+         /> */}
       </>
    )
 }

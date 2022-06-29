@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { useNFTBalances, useMoralis } from "react-moralis";
+import {networks} from '../shared/variable'
+import {address_bulls} from '../shared/variable'
 
 export const useInitNft = (
    setBull3D: (value: React.SetStateAction<any[]>) => void, 
@@ -12,9 +14,9 @@ export const useInitNft = (
       if(isAuthenticated) {
          getNFTBalances({
             params: {
-               address: '0xa5E49ABB65C2a1C4a742023b5475c52De9bb0658', // 0xa5E49ABB65C2a1C4a742023b5475c52De9bb0658
-               chain:'0x1',
-               token_addresses:["0x07a8ba3f4fd4db7f3381c07ee5a309c1aace9c59"]
+               address: typeof account === "string" ? account : '', 
+               chain:networks.ETH_BYTE,
+               token_addresses:[address_bulls.THREE_D]
             },
             onSuccess(data) {
                if(
@@ -27,9 +29,9 @@ export const useInitNft = (
    
          getNFTBalances({
             params: {
-               address: '0xa5E49ABB65C2a1C4a742023b5475c52De9bb0658', // typeof account === "string" ? account : ''
-               chain:'polygon',
-               token_addresses:["0x152f18f676576f78acc29d88a43f8fcde996c567"]
+               address: typeof account === "string" ? account : '', 
+               chain:networks.ETH_BYTE, // testnet - networks.POL_BYTE
+               token_addresses:[address_bulls.TWO_D]
             },
    
             onSuccess(data) {

@@ -9,8 +9,8 @@ import logo from '../../../assets/img/logo.png'
 import { Link, useLocation } from "react-router-dom"
 
 export const Header = () => {
-   const {pathname} = useLocation();
-
+   const {pathname} = useLocation();  
+   
    return(
       <HeaderComp>
          <Container>

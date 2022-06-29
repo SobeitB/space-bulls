@@ -35,19 +35,19 @@ html, body, #root, .App {
 
 @media (max-width: 768px) {
   .AppHome{
-    background-image: url(./assets/img/bgHomePk.png);
+    background-image: url(./assets/img/bgHome768.png);
   }
 }
 
 @media (max-width: 480px) {
   .AppHome{
-    background-image: url(./assets/img/bgHomePk.png);
+    background-image: url(./assets/img/bgHome480.png);
   }
 }
 
 @media (max-width: 320px) {
   .AppHome{
-    background-image: url(./assets/img/bgHomePk.png);
+    background-image: url(./assets/img/bgHome320.png);
   }
 }
 
