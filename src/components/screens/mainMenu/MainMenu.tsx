@@ -17,6 +17,9 @@ import { useEffect, useState } from "react"
 import {address_antimatter, address_staking} from '../../../shared/variable'
 import abi_antimatter from '../../../shared/abi/Antimatter.json'
 import abi_staking from '../../../shared/abi/SpaceStaking.json'
+import {Modal} from 'web3uikit';
+import {useModal} from '../../../pages/stakaing/hooks/onModal'
+import {useValidPairs} from '../../../pages/stakaing/hooks/validPairs'
 
 export const MainMenu = () => {
    const nftStaking = useAppSelector(state => state.staking.nftStaking)
@@ -27,6 +30,11 @@ export const MainMenu = () => {
    const [stakeNftCount, setStakeNftCount] = useState(0)
    // const getSignedTokenIdsDebug = useMoralisCloudFunction("getSignedTokenIdsDebug");
    const getSignedTokenIds = useMoralisCloudFunction("getSignedTokenIds");
+   const {
+      isModalWarning,
+      onModal
+   } = useModal();
+   useValidPairs(onModal);
 
    useEffect(() => {
       if(account) {
@@ -86,6 +94,23 @@ export const MainMenu = () => {
 
    return(
    <>
+      <Modal 
+         isVisible={isModalWarning} 
+         onCloseButtonPressed={onModal('warning')} 
+         onCancel={onModal('warning')}
+         onOk={onModal('warning')}
+         title="WARNING"
+         children={
+            <div>
+               <p style={{"margin": "15px 0"}}>If you proceed to claim $Antimatter collected so far, the total yield will be {
+                  nftStaking.length && nftStaking.reduce((prev, {reward}: {reward: number}) => (
+                     prev + (reward * 50) 
+                  ), 0)
+               }</p> {/* сколько буду в день получт */}
+            </div>
+         }
+      />
+
       <ContainerInfo>
          <InfoBlockBody>
             <InfoText>Staked</InfoText>
@@ -126,10 +151,10 @@ export const MainMenu = () => {
                active={pathname === "/marketPlace"}
             >MarketPlace</Tabs>
 
-            <Tabs
+            {/* <Tabs
                onClick={onNavigate("create_product")}  
                active={pathname === "/create_product"}
-            >Create a product</Tabs>
+            >Create a product</Tabs> */}
 
             {data.length > 0 &&
                <Tabs

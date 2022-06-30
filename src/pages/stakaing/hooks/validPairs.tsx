@@ -2,14 +2,11 @@ import { useEffect } from "react";
 import { useMoralis, useWeb3ExecuteFunction, useMoralisCloudFunction } from "react-moralis";
 import {address_staking} from '../../../shared/variable'
 import abi_staking from '../../../shared/abi/SpaceStaking.json'
-import {useModal} from './onModal'
 
-export const useValidPairs = () => {
+export const useValidPairs = (onModal:(type: string) => () => void) => {
    const {account} = useMoralis();
    const smart = useWeb3ExecuteFunction();
-   const {
-      onModal
-   } = useModal();
+   
    const getSignedTokenIds = useMoralisCloudFunction("getSignedTokenIds");
    const getSignedTokenIdsDebug = useMoralisCloudFunction("getSignedTokenIdsDebug");
 
@@ -51,9 +48,10 @@ export const useValidPairs = () => {
             smart.fetch({
                params: options,
                onSuccess: (res: any) => {
+                  console.log(res)
                   // проверяем, продавал нфт майннет юзер или нет
                   if(res.pairs !== 0 && res.singles > 0) {
-                    onModal('staking')()
+                     onModal('staking')()
                   }
                }, 
       

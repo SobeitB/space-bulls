@@ -21,13 +21,14 @@ export const FormPrice = ({nft, type}:FormProps) => {
    const [price, setPrice] = useState<string>('')
    const {fetch} = useWeb3ExecuteFunction();
    const {save} = useNewMoralisObject('MarketPlace');
-   const {account} = useMoralis()
+   const {account,Moralis} = useMoralis()
    const textRef = useRef('');
    const dispatchNotification = useNotification();
 
    textRef.current = price
 
    const onClick = useCallback(async () => {
+      console.log(textRef.current)
       if(textRef.current.length === 0) {
          return;
       }
@@ -58,10 +59,10 @@ export const FormPrice = ({nft, type}:FormProps) => {
             tokenId:Number(nft.token_id),
             recipient:account,
             paymentContract:address_antimatter,
-            price:Number(price),
+            price:Moralis.Units.ETH(textRef.current),
          }
       }
-
+      
       await fetch({
          params: optionsMarket,
          onSuccess: async (res: any) => {
@@ -90,7 +91,7 @@ export const FormPrice = ({nft, type}:FormProps) => {
          }
       })
 
-   }, [nft, account])
+   }, [nft, account, Moralis])
 
    return(
       <Form >

@@ -64,9 +64,7 @@ const MarketPlace = () => {
                const query = new Moralis.Query(MarketPlace);
                const objAll = await query.find();
 
-               console.log(objAll)
                res.items.forEach((itemOffer:any) => {
-
                   objAll.forEach((item:any) => {
                      if(Number(item?.attributes.token_id) === Number(itemOffer.nftTokenId)) {
                         setItems((prev:any) => {
@@ -79,13 +77,6 @@ const MarketPlace = () => {
                               }
                            ]
                         })    
-                     } else {
-                        setItems((prev:any) => {
-                           return [
-                              ...prev,
-                              itemOffer
-                           ]
-                        }) 
                      }
                   })
                })
@@ -126,7 +117,7 @@ const MarketPlace = () => {
             return;
          }
 
-         // покупка
+         // покупка нфт
       } else {
          if(network !== chainId) {
             dispatchNotification({
@@ -146,7 +137,7 @@ const MarketPlace = () => {
             abi: abi_antimatter.abi,
             params: {
                spender:address_market,
-               addedValue:Number(Moralis.Units.ETH(price)),
+               addedValue:Moralis.Units.ETH(price),
             }
          }
 
@@ -154,7 +145,6 @@ const MarketPlace = () => {
          await fetch({
             params: optionsAllowance,
             onSuccess: (res:any) => {
-               
                console.log(res)
             },
 
@@ -175,10 +165,20 @@ const MarketPlace = () => {
             }
          }
          
-         console.log(optionsBuy)
          await fetch({
             params: optionsBuy,
-            onSuccess: (res:any) => {
+            onSuccess: async (res:any) => {
+
+               const MarketPlace = Moralis.Object.extend("MarketPlace");
+               const query = new Moralis.Query(MarketPlace);
+               const thisOffer = await query
+               .equalTo("token_id", id)
+               .first();
+
+               if(thisOffer) {
+                  thisOffer.destroy()
+               }
+
                handleNewNotification('success')
                console.log(res)
             },
@@ -202,9 +202,9 @@ const MarketPlace = () => {
    return(
       <>
          <StakingNft heigth={true}>
-            {items.length ? items.map((item:any) => {
+            {items.length ? items.map((item:any, index:number) => {
                return(
-                  <Item key={item[6]}>
+                  <Item key={index}>
                      <Img 
                         alt=""
                         src={item?.img ? item.img : ''}
@@ -214,9 +214,15 @@ const MarketPlace = () => {
                            <Network>Name: {item.name}</Network>
                         }
                         <Network>TokenId: {Number(item.nftTokenId)}</Network>
-                        <Network>Price: {Number(item.price)} antimatter</Network>
+                        <Network>Price: {Moralis.Units.FromWei(item.price)} antimatter</Network>
                      </BodyText>
-                     <Claim onClick={buyOffer(Number(item.nftTokenId), item.price, item.nftContract, "nft", networks.ETH_BYTE)}>Buy</Claim>
+                     <Claim onClick={
+                        buyOffer(Number(item.nftTokenId), 
+                        Moralis.Units.FromWei(item.price), 
+                        item.nftContract, 
+                        "nft", 
+                        networks.ETH_BYTE
+                     )}>Buy</Claim>
                   </Item>
                )
             })

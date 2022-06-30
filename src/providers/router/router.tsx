@@ -65,7 +65,7 @@ export const Router = () => {
                }  
             />
 
-            <Route 
+            {/* <Route 
                path="/create_product"
                element={
                   <Suspense fallback={ <LayoutLoader /> }>
@@ -74,7 +74,7 @@ export const Router = () => {
                      </LayoutPage>
                   </Suspense>
                }  
-            />
+            /> */}
 
             <Route 
                path="/admin_panel"

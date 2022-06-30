@@ -16,8 +16,8 @@ import {
    ClearNft,
    ContStakeBtn
 } from "./Staking.styled";
-import { useState, useCallback, useRef, useEffect } from "react";
-import { useMoralis, useWeb3ExecuteFunction } from "react-moralis";
+import { useState, useCallback, useRef } from "react";
+import { useMoralis } from "react-moralis";
 import { useAppSelector } from "../../app/hooks";
 import selectedNft from '../../assets/img/selectedNft.svg'
 import {useGetNotStakingNft} from '../../hooks/getNotStakingNft'
@@ -25,14 +25,10 @@ import {useGetStakingNft} from '../../hooks/getStakingNft'
 import {useNewNotification} from '../../hooks/NewNotification'
 import {useOnDedicatedNft} from './hooks/onDedicatedNft'
 import {useModal} from './hooks/onModal'
-import {useValidPairs} from './hooks/validPairs'
 import {useStake} from './hooks/stake'
 import {useUnStake} from './hooks/unstake'
 import {Modal} from 'web3uikit';
 import {networks} from '../../shared/variable'
-
-import abi_staking from '../../shared/abi/SpaceStaking.json'
-import {address_staking} from '../../shared/variable'
 
 export interface stakingI {
    token_id:string,
@@ -46,12 +42,10 @@ const StakingOnly = () => {
    const unStake = useUnStake();
    const {
       isModalStaking,
-      isModalWarning,
       onModal
    } = useModal();
 
-   const {chainId, account} = useMoralis();
-   const smart = useWeb3ExecuteFunction();
+   const {chainId} = useMoralis();
    const staking = useAppSelector(state => state.staking)
 
    const [dedicatedNfts, setDedicatedNfts] = useState<stakingI[]>([])
@@ -65,7 +59,6 @@ const StakingOnly = () => {
 
    useGetNotStakingNft();
    useGetStakingNft();
-   useValidPairs();
 
    const onClear = useCallback(() =>  {
       setDedicatedNfts([])
@@ -106,20 +99,6 @@ const StakingOnly = () => {
                </div>
             }
          /> 
-
-         <Modal 
-            isVisible={isModalWarning} 
-            onCloseButtonPressed={onModal('warning')} 
-            onCancel={onModal('warning')}
-            onOk={onModal('warning')}
-            title="WARNING"
-            children={
-               <div>
-                  <p style={{"marginTop": "5px"}}>You no longer have a matching pair SpaceBull in your wallet, ID 1 </p> {/* заменить на переменную с id нфт, которого не хватает */}
-                  <p style={{"margin": "15px 0"}}>If you proceed to claim $Antimatter collected so far, the total yield will be 1</p> {/* сколько буду в день получт */}
-               </div>
-            }
-         />
 
          <TitleCont>
             <Title>Spacebulls Unboxed ({AllNftStaking.length})</Title>
