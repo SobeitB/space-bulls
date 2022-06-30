@@ -11,7 +11,7 @@ interface propsPagination {
 }
 
 export const PaginationPage = memo(({pages, setPages, allPages}:propsPagination) => {
-    
+   
    const updatePages = (nameEvent: string) => () => {
       if(nameEvent === 'next') {
          pages + 1 < Math.ceil(allPages / 10) && setPages(pages + 1)

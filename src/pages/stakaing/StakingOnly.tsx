@@ -16,85 +16,59 @@ import {
    ClearNft,
    ContStakeBtn
 } from "./Staking.styled";
-import {PaginationPage} from '../../components/shared/PaginationPages/PaginationPages'
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useMoralis, useWeb3ExecuteFunction } from "react-moralis";
 import { useAppSelector } from "../../app/hooks";
 import selectedNft from '../../assets/img/selectedNft.svg'
 import {useGetNotStakingNft} from '../../hooks/getNotStakingNft'
-import {useNotification, Modal} from 'web3uikit';
-import { notifyType} from 'web3uikit/dist/components/Notification/types';
-import { TIconType } from 'web3uikit/dist/components/Icon/collection';
-
-import {address_staking} from '../../shared/variable'
-import abi_staking from '../../shared/abi/SpaceStaking.json'
-import abi_721 from '../../shared/abi/ERC721.json'
+import {useGetStakingNft} from '../../hooks/getStakingNft'
+import {useNewNotification} from '../../hooks/NewNotification'
+import {useOnDedicatedNft} from './hooks/onDedicatedNft'
+import {useModal} from './hooks/onModal'
+import {useValidPairs} from './hooks/validPairs'
+import {useStake} from './hooks/stake'
+import {useUnStake} from './hooks/unstake'
+import {Modal} from 'web3uikit';
 import {networks} from '../../shared/variable'
 
-interface stakingI {
+import abi_staking from '../../shared/abi/SpaceStaking.json'
+import {address_staking} from '../../shared/variable'
+
+export interface stakingI {
    token_id:string,
    reward:number,
    isStaking:boolean,
 }
 
 const StakingOnly = () => {
-   const dispatchNotification = useNotification();
+   const handleNewNotification = useNewNotification();
+   const stake = useStake();
+   const unStake = useUnStake();
+   const {
+      isModalStaking,
+      isModalWarning,
+      onModal
+   } = useModal();
+
    const {chainId, account} = useMoralis();
    const smart = useWeb3ExecuteFunction();
    const staking = useAppSelector(state => state.staking)
 
-   const [isModalStaking, setModalStaking] = useState<boolean>(false)
-   const [isModalWarning, setModalWarning] = useState<boolean>(false)
    const [dedicatedNfts, setDedicatedNfts] = useState<stakingI[]>([])
-   const AllNftStaking = [...staking.nftNotStaking, ...staking.nftStaking, ] 
-   const [pages, setPages] = useState<number>(0)
+   const onDedicatedNft = useOnDedicatedNft(dedicatedNfts, setDedicatedNfts);
+
+   const AllNftStaking = [...staking.nftStaking, ...staking.nftNotStaking,]
 
    let stakingOrUnstaking = useRef('Stake')
-   stakingOrUnstaking.current = dedicatedNfts.some((dedicatedNft:stakingI) => dedicatedNft.isStaking) ? 'Unstake' : 'Stake';
+   stakingOrUnstaking.current = dedicatedNfts
+   .some((dedicatedNft:stakingI) => dedicatedNft.isStaking) ? 'Unstake' : 'Stake';
 
-   useGetNotStakingNft()
-
-   const onDedicatedNft = useCallback((nft: stakingI) => () => {
-      if(dedicatedNfts.length) {
-
-         if(nft.isStaking === dedicatedNfts[0].isStaking) {
-            if(!dedicatedNfts.some((dedicatedNft: stakingI) => dedicatedNft.token_id === nft.token_id)) {
-               setDedicatedNfts([...dedicatedNfts, nft])
-            } else {
-               let newArr = [...dedicatedNfts];
-               newArr.splice(dedicatedNfts.indexOf(nft), 1);
-               setDedicatedNfts(newArr);
-            }
-         }
-      } else {
-         setDedicatedNfts([...dedicatedNfts, nft])
-      }
-   }, [dedicatedNfts])
+   useGetNotStakingNft();
+   useGetStakingNft();
+   useValidPairs();
 
    const onClear = useCallback(() =>  {
       setDedicatedNfts([])
-   }, [])
-
-   const onModal = useCallback((type:string) => () => {
-      if(type === 'warning') {
-         setModalWarning(!isModalWarning)
-      } else {
-         setModalStaking(!isModalStaking)
-      }
-   }, [isModalStaking, isModalWarning])
-
-   const handleNewNotification = useCallback((
-      type: notifyType,
-      text:string,
-      icon?: TIconType, 
-   ) => {
-      dispatchNotification({
-         type,
-         message: text,
-         title: type,
-         icon,
-         position: 'topR',
-      });
    }, [])
 
    const onIsStaking = useCallback((type:string) => async () => {
@@ -105,79 +79,9 @@ const StakingOnly = () => {
          }
 
          if(type === 'Stake') {
-
-            const optionsApprove = {
-               contractAddress: "0xfa7a1979f2e330178578ca87ffc1b6cdabd8f1e3",
-               functionName: "setApprovalForAll",
-               abi: abi_721.abi,
-               params: {
-                  operator:address_staking,  
-                  approved:true,
-               }
-            }
-
-            await smart.fetch({
-               params: optionsApprove,
-               onSuccess: (res: any) => {
-                  console.log(res);
-               }, 
-
-               onError: (err:any) => {
-                  handleNewNotification('error', 'An Error Has Occurred!')
-                  console.log(err)
-               }
-            })
-
-            const optionsStake = {
-               contractAddress: address_staking,
-               functionName: "stake",
-               abi: abi_staking.abi,
-               params: {
-                  tokenIds:dedicatedNfts.map((nft:stakingI) => Number(nft.token_id)),
-               }
-            }
-   
-            await smart.fetch({
-               params: optionsStake,
-               onSuccess: (res: any) => {
-                  console.log(res);
-                  handleNewNotification('success','You have successfully staking the nft.') 
-               }, 
-
-               onError: (err:any) => {
-                  handleNewNotification('error', 'An Error Has Occurred!')
-                  console.log(err)
-               }
-            })
-
+            stake(dedicatedNfts)
          } else {
-            // unstake
-            const options = {
-               contractAddress: address_staking,
-               functionName: "unstake",
-               abi: abi_staking.abi,
-               params: {
-                  tokenIds:dedicatedNfts.map((nft:stakingI) => Number(nft.token_id)),
-                   
-                  // moralis code
-                  signedTokenIds:'',
-                  nonce:'',
-                  signature:''
-               }
-            }
-   
-            smart.fetch({
-               params: options,
-               onSuccess: (res: any) => {
-                  console.log(res);
-                  handleNewNotification('success','You have successfully unStaking the nft.')
-               }, 
-
-               onError: (err:any) => {
-                  handleNewNotification('error', 'An Error Has Occurred!')
-                  console.log(err)
-               }
-            })
+            unStake(dedicatedNfts)
          }
 
       } else {
@@ -185,38 +89,6 @@ const StakingOnly = () => {
       }
 
    }, [dedicatedNfts, chainId])
-
-   useEffect(() => {
-      if(account) {
-         const options = {
-            contractAddress: address_staking,
-            functionName: "claimable",
-            abi: abi_staking.abi,
-            params: {
-               sender:account,
-               // moralis code
-               signedTokenIds:[]
-            }
-         }
-   
-         smart.fetch({
-            params: options,
-            onSuccess: (res: any) => {
-               console.log(res);
-
-               // проверяем, продавал нфт майннет юзер или нет
-               if(res.pairs !== 0 && res.singles > 0) {
-                 onModal('staking')()
-               }
-            }, 
-   
-            onError: (err:any) => {
-               // handleNewNotification('error', 'An Error Has Occurred!')
-               console.log(err)
-            }
-         })
-      }
-   }, [account])
    
    return(
       <>
@@ -244,7 +116,7 @@ const StakingOnly = () => {
             children={
                <div>
                   <p style={{"marginTop": "5px"}}>You no longer have a matching pair SpaceBull in your wallet, ID 1 </p> {/* заменить на переменную с id нфт, которого не хватает */}
-                  <p style={{"margin": "15px 0"}}>If you proceed to claim $Antimatter collected so far, the total yield will be 1</p> {/* актуальное количество */}
+                  <p style={{"margin": "15px 0"}}>If you proceed to claim $Antimatter collected so far, the total yield will be 1</p> {/* сколько буду в день получт */}
                </div>
             }
          />
@@ -266,7 +138,7 @@ const StakingOnly = () => {
 
          <StakingNft>
             {AllNftStaking.length ? 
-               AllNftStaking.splice(pages, 10).map((nft:stakingI) => (
+               AllNftStaking.map((nft:stakingI) => (
                   <Nft 
                      key={nft.token_id}
                      isSelected={dedicatedNfts.some((dedicatedNft:stakingI) => dedicatedNft.token_id === nft.token_id)}
@@ -299,14 +171,6 @@ const StakingOnly = () => {
                <h1 className="nothing_title">You don't have any SpaceBulls unboxed</h1>
             }
          </StakingNft>
-
-         {AllNftStaking.length ? 
-            <PaginationPage
-               pages={pages}
-               setPages={setPages}
-               allPages={AllNftStaking.length}
-            />
-         : ""}
       </>
    );
 }

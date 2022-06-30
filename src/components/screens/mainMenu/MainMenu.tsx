@@ -11,17 +11,22 @@ import {
 import {useLocation, useNavigate} from 'react-router-dom'
 import {useMoralisQuery} from 'react-moralis'
 import { useAppSelector } from "../../../app/hooks";
-import {useWeb3ExecuteFunction, useMoralis} from 'react-moralis'
+import {useWeb3ExecuteFunction, useMoralis, useMoralisCloudFunction} from 'react-moralis'
 import { useEffect, useState } from "react"
 
-import {address_antimatter} from '../../../shared/variable'
+import {address_antimatter, address_staking} from '../../../shared/variable'
 import abi_antimatter from '../../../shared/abi/Antimatter.json'
+import abi_staking from '../../../shared/abi/SpaceStaking.json'
 
 export const MainMenu = () => {
+   const nftStaking = useAppSelector(state => state.staking.nftStaking)
    const {pathname} = useLocation();
    const balance = useWeb3ExecuteFunction();
    const {Moralis, account} = useMoralis()
    const [balanceMatter, setBalanceMatter] = useState(0)
+   const [stakeNftCount, setStakeNftCount] = useState(0)
+   // const getSignedTokenIdsDebug = useMoralisCloudFunction("getSignedTokenIdsDebug");
+   const getSignedTokenIds = useMoralisCloudFunction("getSignedTokenIds");
 
    useEffect(() => {
       if(account) {
@@ -30,7 +35,7 @@ export const MainMenu = () => {
             functionName: "balanceOf",
             abi: abi_antimatter.abi,
             params: {
-               account:account // testnet. eth - account
+               account:account
             }
          }
    
@@ -38,6 +43,28 @@ export const MainMenu = () => {
             params: options,
             onSuccess: (res: any) => {
                setBalanceMatter(Number(Moralis.Units.FromWei(res)))
+            }, 
+            onError: (err:any) => {
+               console.log(err)
+            }
+         })
+
+         // retrieve
+         const optionsRetrieve = {
+            contractAddress: address_staking,
+            functionName: "retrieve",
+            abi: abi_staking.abi,
+            params: {
+               owner:account,
+               offset:0, 
+               limit:1000
+            }
+         }
+   
+         balance.fetch({
+            params: optionsRetrieve,
+            onSuccess: (res: any) => {
+               setStakeNftCount(res.items.length)
             }, 
             onError: (err:any) => {
                console.log(err)
@@ -62,7 +89,7 @@ export const MainMenu = () => {
       <ContainerInfo>
          <InfoBlockBody>
             <InfoText>Staked</InfoText>
-            <InfoBlock>{staking.nftStaking.length}</InfoBlock>
+            <InfoBlock>{stakeNftCount}</InfoBlock>
          </InfoBlockBody>
 
          <InfoBlockBody>
@@ -72,14 +99,14 @@ export const MainMenu = () => {
 
          <InfoBlockBody>
             <InfoText>Balance</InfoText>
-            <InfoBlock>{balanceMatter}</InfoBlock>
+            <InfoBlock>{Math.ceil(balanceMatter)}</InfoBlock>
          </InfoBlockBody>
 
          <InfoBlockBody>
             <InfoText>Daily yield</InfoText>
             <InfoBlock>
                {
-                  staking.nftStaking.length && staking.nftStaking.reduce((prev, {reward}: {reward: number}) => (
+                  nftStaking.length && nftStaking.reduce((prev, {reward}: {reward: number}) => (
                      prev + (reward * 50) 
                   ), 0)
                }

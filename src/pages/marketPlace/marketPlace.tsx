@@ -15,16 +15,18 @@ import {useNotification} from 'web3uikit';
 import { notifyType} from 'web3uikit/dist/components/Notification/types';
 import { TIconType } from 'web3uikit/dist/components/Icon/collection';
 import { useCallback, useEffect, useState } from 'react';
-import { useMoralis, useWeb3ExecuteFunction } from 'react-moralis';
-import {address_market} from '../../shared/variable'
+import { useMoralis, useWeb3ExecuteFunction, } from 'react-moralis';
+import {address_market, address_antimatter} from '../../shared/variable'
 import abi_market from '../../shared/abi/SpaceMarket.json'
+import abi_antimatter from '../../shared/abi/Antimatter.json'
 import {networks} from '../../shared/variable'
 
 const MarketPlace = () => {
-   const {chainId} = useMoralis();
+   const {chainId, Moralis} = useMoralis();
    const {fetch} = useWeb3ExecuteFunction();
    const [pages, setPages] = useState(1)
    const [allPages, setAllPages] = useState(1)
+   const [items, setItems] = useState<any[]>([])
    const dispatchNotification = useNotification();
 
    useEffect(() => {
@@ -46,7 +48,7 @@ const MarketPlace = () => {
          })
 
          const optionsView = {
-            contractAddress:"0xdaeb39f21d3a978ab6fe2e338833e3cebf33b60e",
+            contractAddress:address_market,
             functionName: "retrieve",
             abi: abi_market,
             params: {
@@ -57,13 +59,38 @@ const MarketPlace = () => {
    
          await fetch({
             params: optionsView,
-            onSuccess: (res:any) => {
-               console.log(res)
-               
-               res.forEach((itemOffer:any[]) => {
-                  console.log(Number(itemOffer))
+            onSuccess: async (res:any) => {
+               const MarketPlace = Moralis.Object.extend("MarketPlace");
+               const query = new Moralis.Query(MarketPlace);
+               const objAll = await query.find();
+
+               console.log(objAll)
+               res.items.forEach((itemOffer:any) => {
+
+                  objAll.forEach((item:any) => {
+                     if(Number(item?.attributes.token_id) === Number(itemOffer.nftTokenId)) {
+                        setItems((prev:any) => {
+                           return [
+                              ...prev,
+                              {
+                                 ...itemOffer,
+                                 img:item?.attributes.img_url,
+                                 name:item?.attributes.collection_name
+                              }
+                           ]
+                        })    
+                     } else {
+                        setItems((prev:any) => {
+                           return [
+                              ...prev,
+                              itemOffer
+                           ]
+                        }) 
+                     }
+                  })
                })
             },
+            
             onError: (err:any) => {
                console.log(err)
             }
@@ -86,7 +113,7 @@ const MarketPlace = () => {
       });
    };
 
-   const buyOffer = useCallback((id:string, addressContract:string, type:string, network:string) => async () => {
+   const buyOffer = useCallback((id:number, price:string, addressContract:string, type:string, network:string) => async () => {
       if(type === 'matter') {
          if(networks.POL_BYTE !== chainId) {
             dispatchNotification({
@@ -104,7 +131,7 @@ const MarketPlace = () => {
          if(network !== chainId) {
             dispatchNotification({
                type:'error',
-               message: `Change the network to ${network === networks.POL_BYTE ? 'mainnet' : 'polygon'}!`,
+               message: `Change the network to ${network === networks.ETH_BYTE ? 'mainnet' : 'polygon'}!`,
                title: 'error',
                icon:'info',
                position: 'topR',
@@ -112,19 +139,43 @@ const MarketPlace = () => {
             return;
          }
 
-         // покупка nft
+         // разрешение покупки
+         const optionsAllowance = {
+            contractAddress:address_antimatter,
+            functionName: "increaseAllowance",
+            abi: abi_antimatter.abi,
+            params: {
+               spender:address_market,
+               addedValue:Number(Moralis.Units.ETH(price)),
+            }
+         }
 
+         console.log(optionsAllowance)
+         await fetch({
+            params: optionsAllowance,
+            onSuccess: (res:any) => {
+               
+               console.log(res)
+            },
+
+            onError: (err:any) => {
+               console.log(err)
+            }
+         })
+
+         // покупка nft
          const optionsBuy = {
             contractAddress:address_market,
             functionName: "execute",
             abi: abi_market,
             params: {
                nftContract:addressContract,
-               tokenId:Number(id),
+               tokenId:id,
+               execute:Number(Moralis.Units.ETH(0))
             }
          }
+         
          console.log(optionsBuy)
-   
          await fetch({
             params: optionsBuy,
             onSuccess: (res:any) => {
@@ -134,47 +185,44 @@ const MarketPlace = () => {
 
             onError: (err:any) => {
                console.log(err)
+               if(err.message.includes('"message":"execution reverted: ERC20: insufficient allowance"')) {
+                  dispatchNotification({
+                     type:'error',
+                     message: `There is not enough Antimatter on the balance!`,
+                     title: 'error',
+                     icon:'info',
+                     position: 'topR',
+                  });
+               }
             }
          })
       }
-
-      
-      // handleNewNotification('error')
-   }, [chainId])
+   }, [chainId, Moralis])
 
    return(
       <>
          <StakingNft heigth={true}>
-            {/* {items.length ? items.map((item:any) => (
-               <Item key={item.id}>
-                  <Img 
-                     alt=""
-                     src={item.attributes.img}
-                  />
-                  <BodyText>
-                     {item.attributes.type === 'nft' ?
-                        <>
-                           <Network>Network: {networks.ETH_BYTE === '0x1' ? 'mainnet' : 'polygon'}</Network>
-                           <Network>Name: {item.attributes.nftName}</Network>
-                           <Network>Price: {item.attributes.nftprice} antimatter</Network>
-                        </>
-                        :
-                        <>
-                           <Title>Antimatter supply: {item.attributes.matterSupply}</Title>
-                           <Network>Price: {item.attributes.matterPrice} matic</Network>
-                           <Network>Seler: {
-                              item.attributes.matterSeller
-                              .replace(/.+/, (e: any) => e.slice(0,3)+'.'.repeat(e.slice(3,9).length)+e.slice(-3))
-                           }</Network>
-                        </>
-                     }
-                  </BodyText>
-                  <Claim onClick={buyOffer(item.id, item.attributes.type, item.attributes.network)}>Buy</Claim>
-               </Item>
-            ))
+            {items.length ? items.map((item:any) => {
+               return(
+                  <Item key={item[6]}>
+                     <Img 
+                        alt=""
+                        src={item?.img ? item.img : ''}
+                     />
+                     <BodyText>
+                        {item?.name && 
+                           <Network>Name: {item.name}</Network>
+                        }
+                        <Network>TokenId: {Number(item.nftTokenId)}</Network>
+                        <Network>Price: {Number(item.price)} antimatter</Network>
+                     </BodyText>
+                     <Claim onClick={buyOffer(Number(item.nftTokenId), item.price, item.nftContract, "nft", networks.ETH_BYTE)}>Buy</Claim>
+                  </Item>
+               )
+            })
             :
                <h1 className="nothing_title">There are no sales at the moment.</h1>
-            } */}
+            }
          </StakingNft>
 
          <Pagination 

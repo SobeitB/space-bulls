@@ -14,7 +14,7 @@ export enum address_bulls{
 export const address_staking = '0x515655176B9788385E0c30E479e9455eE7101e6c';
 export const address_antimatter = '0x7fB7C61fc74eA1AD084C1dB4ad839550B81bFA01';
 export const address_spaceBags = '0x3A135607B53924ACEC2E9e0b00fEa5e695d208CB';
-export const address_market = '0xA74C3D43C2f5C604e81C8C669108Fb2099fa2D74';
+export const address_market = '0xdd468705ddbc72802a72243f3aee4d5434236e33';
 
 export function meta_bull2D (id:string) {
    return `https://opensea.mypinata.cloud/ipfs/bafybeibhfvxvbfoh7ikdfkw7nyeldgic2nprjvnoz6ym5kmablbohz7pia/${id}.json`

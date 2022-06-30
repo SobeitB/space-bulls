@@ -40,6 +40,29 @@ export const ImgChange = styled.img`
    width:100%;
    height:300px;
    margin-bottom:15px;
+
+   @media (max-width:1440px) {
+      display:none;
+   }
+`
+
+export const ImgChangeTablet = styled(ImgChange)`
+   display:none;
+   @media (max-width:1440px) {
+      display:block;
+   }
+
+   @media (max-width:993px) {
+      display:none;
+   }
+`
+
+export const ImgChangeMobile = styled(ImgChange)`
+   display:none;
+
+   @media (max-width:993px) {
+      display:block;
+   }
 `
 
 export const ButtonChange = styled.button.attrs((props: propsBtn) => props)`

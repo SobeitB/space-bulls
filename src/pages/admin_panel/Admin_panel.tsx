@@ -93,7 +93,7 @@ const AdminPanel = () => {
                      <Item key={nft.block_number} select={true}>
                         <Img 
                            alt=""
-                           src={nft.image}
+                           src={JSON.parse(nft.metadata).image}
                         />
                         <BodyText>
                            <Title>Name: {nft?.name ? nft?.name : 'no name'}</Title>

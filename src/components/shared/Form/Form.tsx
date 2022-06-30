@@ -5,10 +5,11 @@ import {
 } from '../../../pages/admin_panel/Admin_panel.styled'
 import {memo, useCallback, useRef, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
-import {useWeb3ExecuteFunction, useMoralis} from 'react-moralis'
-import {address_market} from '../../../shared/variable'
+import {useWeb3ExecuteFunction, useMoralis, useNewMoralisObject} from 'react-moralis'
+import {address_market, address_antimatter} from '../../../shared/variable'
 import abi_market from '../../../shared/abi/SpaceMarket.json'
 import abi_721 from '../../../shared/abi/ERC721.json'
+import {useNotification} from 'web3uikit';
 
 interface FormProps {
    nft?: any;
@@ -19,8 +20,10 @@ export const FormPrice = ({nft, type}:FormProps) => {
    const navigate = useNavigate()
    const [price, setPrice] = useState<string>('')
    const {fetch} = useWeb3ExecuteFunction();
-   const {account, Moralis} = useMoralis()
+   const {save} = useNewMoralisObject('MarketPlace');
+   const {account} = useMoralis()
    const textRef = useRef('');
+   const dispatchNotification = useNotification();
 
    textRef.current = price
 
@@ -54,18 +57,36 @@ export const FormPrice = ({nft, type}:FormProps) => {
             nftContract:nft.token_address,  
             tokenId:Number(nft.token_id),
             recipient:account,
-            price:Moralis.Units.ETH(price),
+            paymentContract:address_antimatter,
+            price:Number(price),
          }
       }
 
       await fetch({
          params: optionsMarket,
-         onSuccess: (res: any) => {
-            console.log(res);
+         onSuccess: async (res: any) => {
+            
+            const saveOffer = {
+               token_id:nft.token_id,
+               img_url:JSON.parse(nft.metadata).image,
+               collection_name:nft.name,
+            };
+
+            await save(saveOffer)
+
             navigate('/marketPlace')
          }, 
          onError: (err:any) => {
             console.log(err)
+            if(err.message.includes('ERR_APPROVE')) {
+               dispatchNotification({
+                  type:'warning',
+                  message: `Try again!`,
+                  title: "Warning",
+                  icon:'info',
+                  position: 'topR',
+               });
+            }
          }
       })
 
