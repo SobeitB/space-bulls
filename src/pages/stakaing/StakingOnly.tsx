@@ -121,7 +121,7 @@ const StakingOnly = () => {
                      <NftImgBody>
                         <NftImg 
                            alt=""
-                           src={`ipfs://bafybeibftqctvpba6ugogcxvtdcszt2ybo7frv6c35oudsolbe22awdicm/${nft.token_id}.png`}
+                           src={`http://tsb.imgix.net/bafybeibftqctvpba6ugogcxvtdcszt2ybo7frv6c35oudsolbe22awdicm/${nft.token_id}.png`}
                         />
                         <NftImgText>ID: {nft.token_id}</NftImgText>
                         {dedicatedNfts.some((dedicatedNft:stakingI) => dedicatedNft.token_id === nft.token_id) &&

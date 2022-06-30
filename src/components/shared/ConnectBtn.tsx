@@ -5,7 +5,7 @@ export const ConnectWallet = () => {
    
    return(
       <div className='ConnectButton'>
-         <ConnectButton chainId={networks.POL_BYTE === '0x13881' ? 13881 : 89} />
+         <ConnectButton chainId={networks.POL_BYTE === '0x89' ? 89 : 13881} />
       </div>
    );
 }
