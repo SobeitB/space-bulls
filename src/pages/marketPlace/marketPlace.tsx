@@ -106,16 +106,16 @@ const MarketPlace = () => {
 
    const buyOffer = useCallback((id:number, price:string, addressContract:string, type:string, network:string) => async () => {
       if(type === 'matter') {
-         if(networks.POL_BYTE !== chainId) {
-            dispatchNotification({
-               type:'error',
-               message: 'Change the network to polygon!',
-               title: 'error',
-               icon:'info',
-               position: 'topR',
-            });
-            return;
-         }
+         // if(networks.POL_BYTE !== chainId) {
+         //    dispatchNotification({
+         //       type:'error',
+         //       message: 'Change the network to polygon!',
+         //       title: 'error',
+         //       icon:'info',
+         //       position: 'topR',
+         //    });
+         //    return;
+         // }
 
          // покупка нфт
       } else {

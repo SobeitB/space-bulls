@@ -66,10 +66,6 @@ const StakingOnly = () => {
 
    const onIsStaking = useCallback((type:string) => async () => {
       if(dedicatedNfts.length) {
-         if(chainId !== networks.ETH_BYTE) {
-            handleNewNotification('error', 'Select the polygon network')
-            return
-         }
 
          if(type === 'Stake') {
             stake(dedicatedNfts)

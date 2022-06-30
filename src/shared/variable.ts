@@ -1,14 +1,14 @@
 export enum networks{
-   ETH_BYTE = '0x4', // 0x1
-   ETH_NAME = 'rinkeby', // eth
+   ETH_BYTE = '0x1', // 0x4
+   ETH_NAME = 'eth', // rinkeby
 
-   POL_BYTE = '0x13881', // 0x89
-   POL_NAME = 'mumbai' // matic
+   POL_BYTE = '0x89', // 0x13881
+   POL_NAME = 'matic' // mumbai
 }
 
 export enum address_bulls{
    THREE_D = '0x07a8ba3F4fd4Db7f3381C07ee5a309c1aacE9C59', // 0x07a8ba3F4fd4Db7f3381C07ee5a309c1aacE9C59
-   TWO_D = '0xfa7a1979f2e330178578ca87ffc1b6cdabd8f1e3', // 0x152f18F676576F78aCC29D88A43F8fcDE996c567
+   TWO_D = '0x152f18F676576F78aCC29D88A43F8fcDE996c567', // 0xfa7a1979f2e330178578ca87ffc1b6cdabd8f1e3
 }
 
 export const address_staking = '0x515655176B9788385E0c30E479e9455eE7101e6c';
