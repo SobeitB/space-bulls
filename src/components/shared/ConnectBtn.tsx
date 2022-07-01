@@ -30,7 +30,7 @@ const BodyConnectWallet = styled.div`
 ` 
 
 export const ConnectWallet = () => {
-   const {Moralis, account, authenticate, logout} = useMoralis();
+   const {account, authenticate, logout} = useMoralis();
    const [isModalWallet, setModalWallet] = useState<boolean>(false)
 
    const onModal = useCallback( () => {

@@ -257,7 +257,7 @@ const MarketPlace = () => {
             abi: abi_antimatter.abi,
             params: {
                to:address_staking,
-               amount:String(Number(price)*(10**18)),
+               amount:Moralis.Units.ETH(price),
             }
          }
    
