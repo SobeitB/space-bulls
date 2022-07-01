@@ -31,7 +31,7 @@ const AdminPanel = () => {
       getNFTBalances({
          params: {
             address: typeof account === "string" ? account : '',
-            chain:networks.ETH_BYTE
+            chain:networks.POL_BYTE 
          },
 
          onSuccess: (value) => {
@@ -72,7 +72,7 @@ const AdminPanel = () => {
                         <Item key={nft.block_number}>
                            <Img 
                               alt=""
-                              src={JSON.parse(nft.metadata).image}
+                              src={JSON.parse(nft.metadata).image.replace("ipfs://", "http://tsb.imgix.net/ipfs/")}
                            />
                            <BodyText>
                               <Title>Name: {nft?.name ? nft?.name : 'no name'}</Title>
@@ -93,7 +93,7 @@ const AdminPanel = () => {
                      <Item key={nft.block_number} select={true}>
                         <Img 
                            alt=""
-                           src={JSON.parse(nft.metadata).image}
+                           src={JSON.parse(nft.metadata).image.replace("ipfs://", "http://tsb.imgix.net/ipfs/")}
                         />
                         <BodyText>
                            <Title>Name: {nft?.name ? nft?.name : 'no name'}</Title>

@@ -5,11 +5,9 @@ export const useModal = () => {
    const [isModalWarning, setModalWarning] = useState<boolean>(false)
 
    const onModal = useCallback((type:string) => () => {
-      if(type === 'warning') {
-         setModalWarning(!isModalWarning)
-      } else {
-         setModalStaking(!isModalStaking)
-      }
+      type === "warning" && setModalWarning(!isModalWarning);
+      type === "staking" && setModalStaking(!isModalStaking);
+
    }, [isModalStaking, isModalWarning])
 
    return {

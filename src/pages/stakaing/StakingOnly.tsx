@@ -14,10 +14,11 @@ import {
    IsSelectedNft,
    StakeAllBtn,
    ClearNft,
-   ContStakeBtn
+   ContStakeBtn,
+   Claimble
 } from "./Staking.styled";
-import { useState, useCallback, useRef } from "react";
-import { useMoralis } from "react-moralis";
+import { useState, useCallback, useRef, useEffect } from "react";
+import { useMoralis, useWeb3ExecuteFunction, useMoralisCloudFunction} from "react-moralis";
 import { useAppSelector } from "../../app/hooks";
 import selectedNft from '../../assets/img/selectedNft.svg'
 import {useGetNotStakingNft} from '../../hooks/getNotStakingNft'
@@ -28,7 +29,10 @@ import {useModal} from './hooks/onModal'
 import {useStake} from './hooks/stake'
 import {useUnStake} from './hooks/unstake'
 import {Modal} from 'web3uikit';
-import {networks} from '../../shared/variable'
+import { address_staking } from "../../shared/variable";
+import abi_staking from "../../shared/abi/SpaceStaking.json";
+import {useNotification} from 'web3uikit';
+import { PaginationPage } from "../../components/shared/PaginationPages/PaginationPages";
 
 export interface stakingI {
    token_id:string,
@@ -38,6 +42,10 @@ export interface stakingI {
 
 const StakingOnly = () => {
    const handleNewNotification = useNewNotification();
+   const dispatchNotification = useNotification();
+   const smart = useWeb3ExecuteFunction();
+   const getSignedTokenIds = useMoralisCloudFunction("getSignedTokenIds");
+
    const stake = useStake();
    const unStake = useUnStake();
    const {
@@ -45,8 +53,12 @@ const StakingOnly = () => {
       onModal
    } = useModal();
 
-   const {chainId} = useMoralis();
+   const {Moralis, chainId, account} = useMoralis();
    const staking = useAppSelector(state => state.staking)
+
+   useEffect(() => {
+      console.log(Moralis.Units.ETH(1000))
+   }, [Moralis])
 
    const [dedicatedNfts, setDedicatedNfts] = useState<stakingI[]>([])
    const onDedicatedNft = useOnDedicatedNft(dedicatedNfts, setDedicatedNfts);
@@ -68,9 +80,9 @@ const StakingOnly = () => {
       if(dedicatedNfts.length) {
 
          if(type === 'Stake') {
-            stake(dedicatedNfts)
+            stake(dedicatedNfts, setDedicatedNfts)
          } else {
-            unStake(dedicatedNfts)
+            unStake(dedicatedNfts, setDedicatedNfts)
          }
 
       } else {
@@ -78,6 +90,64 @@ const StakingOnly = () => {
       }
 
    }, [dedicatedNfts, chainId])
+
+   const onClaimble = async () => {
+      const resSignedTokenIds:any = await getSignedTokenIds.fetch({
+         params:{
+            address:account
+         }
+      })
+
+      const optionsClaimableCheck = {
+         contractAddress: address_staking,
+         functionName: "claimable",
+         abi: abi_staking.abi,
+         params:{
+            signedTokenIds:resSignedTokenIds.signedTokenIds,
+            sender:account,
+         }
+      }
+
+      await smart.fetch({
+         params: optionsClaimableCheck,
+         onSuccess:(res:any) => {
+            console.log(res.amount)
+            dispatchNotification({
+               type:"success",
+               message: `You may claim ${Number(Moralis.Units.FromWei(res.amount))} $Antimatter`,
+               title: "success",
+               icon:"info",
+               position: 'topL',
+            })
+         },
+
+         onError(error:Error) {
+            console.log(error.message)
+         },
+      })
+
+      const optionsClaim = {
+         contractAddress: address_staking,
+         functionName: "claim",
+         abi: abi_staking.abi,
+         params:{
+            signedTokenIds:resSignedTokenIds.signedTokenIds,
+            nonce:resSignedTokenIds.nonce,
+            signature:resSignedTokenIds.signature,
+         }
+      }
+
+      await smart.fetch({
+         params: optionsClaim,
+         onSuccess:(res:any) => {
+            console.log(res)
+         },
+
+         onError(error:Error) {
+            console.log(error.message)
+         },
+      })
+   }
    
    return(
       <>
@@ -102,6 +172,7 @@ const StakingOnly = () => {
          </TitleCont>
 
          <ContStakeBtn>
+            <Claimble onClick={onClaimble}>Claim</Claimble>
             <StakeAllBtn 
                onClick={onIsStaking(stakingOrUnstaking.current)}
                isSelected={Boolean(dedicatedNfts.length)}
@@ -144,6 +215,16 @@ const StakingOnly = () => {
                ))
                :
                <h1 className="nothing_title">You don't have any SpaceBulls unboxed</h1>
+            }
+
+            {AllNftStaking.length ?
+               // <PaginationPage 
+               //    page={0}
+               //    allPage={0}
+               // />
+               ''
+               :
+               ''
             }
          </StakingNft>
       </>

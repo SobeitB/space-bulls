@@ -3,13 +3,15 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 export interface StakingState {
    nftNotStaking: any[];
    nftStaking: any[];
-   nftStakingId: number[];
+   page:number;
+   allPages:number;
 }
 
 const initialState: StakingState = {
    nftNotStaking: [],
    nftStaking: [],
-   nftStakingId:[],
+   page:0,
+   allPages:0
 }
 
 export const counterSlice = createSlice({
@@ -24,12 +26,21 @@ export const counterSlice = createSlice({
          state.nftNotStaking = action.payload
       },
 
-      setNftStakingId: (state, action: PayloadAction<number[]>) => {
-         state.nftStakingId = action.payload
+      setPage: (state, action: PayloadAction<number>) => {
+         state.page = action.payload
+      },
+
+      setAllPage: (state, action: PayloadAction<number>) => {
+         state.allPages = action.payload
       },
    },
 })
 
-export const { setNftStaking, setNftNotStaking, setNftStakingId } = counterSlice.actions
+export const { 
+   setNftStaking, 
+   setNftNotStaking, 
+   setPage,
+   setAllPage
+ } = counterSlice.actions
 
 export default counterSlice.reducer

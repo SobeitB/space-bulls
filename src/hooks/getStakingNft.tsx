@@ -9,7 +9,6 @@ export const useGetStakingNft = () => {
    const dispatch = useAppDispatch()
    const {account} = useMoralis()
    const contract = useWeb3ExecuteFunction();
-   // const getSignedTokenIdsDebug = useMoralisCloudFunction("getSignedTokenIdsDebug");
    const getSignedTokenIds = useMoralisCloudFunction("getSignedTokenIds");
 
    useEffect(() => {
@@ -28,13 +27,16 @@ export const useGetStakingNft = () => {
          contract.fetch({
             params: optionsRetrieve,
             onSuccess: (res: any) => {
-                
+               
                getSignedTokenIds.fetch({
                   params:{
-                     token_ids:res.items,
                      address:account
                   },
+                  onError(error) {
+                     console.log(error)
+                  },
                   onSuccess: (res: any) => {
+                     console.log(res)
 
                      const optionsNftStaking = {
                         contractAddress: address_staking,
@@ -49,6 +51,7 @@ export const useGetStakingNft = () => {
                      contract.fetch({
                         params: optionsNftStaking,
                         onSuccess(results:any) {
+
                            const StakeNft:any[] = [];
                            results.items.forEach((item:any) => {
                               StakeNft.push({

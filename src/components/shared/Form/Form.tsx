@@ -43,13 +43,6 @@ export const FormPrice = ({nft, type}:FormProps) => {
          }
       }
 
-      await fetch({
-         params: optionsErc721,
-         onError: (err:any) => {
-            console.log(err)
-         }
-      })
-
       const optionsMarket = {
          contractAddress: address_market,
          functionName: "create",
@@ -62,6 +55,13 @@ export const FormPrice = ({nft, type}:FormProps) => {
             price:Moralis.Units.ETH(textRef.current),
          }
       }
+
+      await fetch({
+         params: optionsErc721,
+         onError: (err:any) => {
+            console.log(err)
+         }
+      })
       
       await fetch({
          params: optionsMarket,
@@ -69,7 +69,7 @@ export const FormPrice = ({nft, type}:FormProps) => {
             
             const saveOffer = {
                token_id:nft.token_id,
-               img_url:JSON.parse(nft.metadata).image,
+               img_url:JSON.parse(nft.metadata).image.replace("ipfs://", "http://tsb.imgix.net/ipfs/"),
                collection_name:nft.name,
             };
 
@@ -79,7 +79,18 @@ export const FormPrice = ({nft, type}:FormProps) => {
          }, 
          onError: (err:any) => {
             console.log(err)
+            if(err.message.includes('ERR_ALREADY_EXISTS')) {
+               dispatchNotification({
+                  type:'warning',
+                  message: `This nft is on sale!`,
+                  title: "Warning",
+                  icon:'info',
+                  position: 'topR',
+               });
+            }
+
             if(err.message.includes('ERR_APPROVE')) {
+               onClick()
                dispatchNotification({
                   type:'warning',
                   message: `Try again!`,

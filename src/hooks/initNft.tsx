@@ -16,9 +16,9 @@ export const useInitNft = (
             params: {
                address: typeof account === "string" ? account : '', 
                chain:networks.ETH_BYTE,
-               token_addresses:[address_bulls.THREE_D]
+               token_addresses:[address_bulls.THREE_D],
             },
-            onSuccess(data) {
+            async onSuccess(data:any) {
                if(
                   typeof data !== 'undefined' &&
                   data !== null &&
@@ -29,8 +29,8 @@ export const useInitNft = (
    
          getNFTBalances({
             params: {
-               address: typeof account === "string" ? account : '', 
-               chain:networks.POL_BYTE, // testnet - networks.POL_BYTE
+               address: typeof account === "string" ? account : '', // typeof account === "string" ? account : ''
+               chain:networks.ETH_BYTE,  // networks.POL_BYTE === '0x13881' ? networks.ETH_BYTE : networks.POL_BYTE
                token_addresses:[address_bulls.TWO_D]
             },
    
@@ -39,7 +39,9 @@ export const useInitNft = (
                   typeof data !== 'undefined' &&
                   data !== null &&
                   typeof data.result !== 'undefined'
-               ) setBull2D(data.result)
+               ) {
+                  setBull2D(data.result)
+               }
             }
          })
       }

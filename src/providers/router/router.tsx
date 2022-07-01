@@ -17,17 +17,18 @@ const Rewards = lazy(() => import ('../../pages/rewards/Rewards'));
 const MarketPlace = lazy(() => import ('../../pages/marketPlace/marketPlace'));
 const AdminPanel = lazy(() => import ('../../pages/admin_panel/Admin_panel'));
 const CreateProduct = lazy(() => import ('../../pages/createProduct/createProduct'));
+const Distribution = lazy(() => import ('../../pages/distribution/Distribution'));
 
 export const Router = () => {
    const {pathname} = useLocation();
    const navigate = useNavigate()
-   const {account} = useMoralis()
+   const {account, isWeb3Enabled} = useMoralis()
 
    useEffect(() => {
-      if(!account) {
+      if(!account && !isWeb3Enabled) {
          navigate('/')
       }
-   }, [account, navigate])
+   }, [account, navigate, isWeb3Enabled])
 
    return (
       <Container>
@@ -65,7 +66,7 @@ export const Router = () => {
                }  
             />
 
-            {/* <Route 
+            <Route 
                path="/create_product"
                element={
                   <Suspense fallback={ <LayoutLoader /> }>
@@ -74,7 +75,7 @@ export const Router = () => {
                      </LayoutPage>
                   </Suspense>
                }  
-            /> */}
+            />
 
             <Route 
                path="/admin_panel"
@@ -83,6 +84,19 @@ export const Router = () => {
                      <LayoutPage>
                         <IsAdminProvider>
                            <AdminPanel />
+                        </IsAdminProvider>
+                     </LayoutPage>
+                  </Suspense>
+               }  
+            />
+
+            <Route 
+               path="/distribution"
+               element={
+                  <Suspense fallback={ <LayoutLoader /> }>
+                     <LayoutPage>
+                        <IsAdminProvider>
+                           <Distribution />
                         </IsAdminProvider>
                      </LayoutPage>
                   </Suspense>

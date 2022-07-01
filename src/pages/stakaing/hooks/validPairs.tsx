@@ -8,7 +8,6 @@ export const useValidPairs = (onModal:(type: string) => () => void) => {
    const smart = useWeb3ExecuteFunction();
    
    const getSignedTokenIds = useMoralisCloudFunction("getSignedTokenIds");
-   const getSignedTokenIdsDebug = useMoralisCloudFunction("getSignedTokenIdsDebug");
 
    useEffect(() => {
       if(account) {
@@ -57,7 +56,7 @@ export const useValidPairs = (onModal:(type: string) => () => void) => {
       
                onError: (err:any) => {
                   // handleNewNotification('error', 'An Error Has Occurred!')
-                  console.log(err)
+                  // console.log(err)
                }
             })
          }

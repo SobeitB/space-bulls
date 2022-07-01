@@ -12,8 +12,6 @@ import {
    StakingNft,
 } from "../stakaing/Staking.styled";
 
-import Pagination from '../../components/screens/Pagination/Pagination'
-import {rewardsI} from '../../types/rewards.interface'
 import {useNotification} from 'web3uikit';
 import { notifyType} from 'web3uikit/dist/components/Notification/types';
 import { TIconType } from 'web3uikit/dist/components/Icon/collection';

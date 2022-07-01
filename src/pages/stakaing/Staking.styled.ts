@@ -40,8 +40,12 @@ export const ContainerInfo = styled.div`
 export const InfoBlockBody = styled.div`
    width:200px;
 
-   @media (max-width:992px) {
+   @media (max-width:1440px) {
       width:150px;
+   }
+
+   @media (max-width:992px) {
+      width:140px;
    }
 
    @media (max-width:769px) {
@@ -65,6 +69,7 @@ export const InfoText = styled.h2`
 
    @media (max-width:769px) {
       font-size:15px;
+      text-align: center;
    }
 `
 
@@ -305,4 +310,11 @@ export const StakeAllBtn = styled.button.attrs((props: propsNft) => props)`
 export const ClearNft = styled(StakeAllBtn)`
    margin-left:15px;
    background:none;
+`
+
+export const Claimble = styled(StakeAllBtn)`
+   width: 120px;
+   height:35px;
+   margin-right:15px;
+   border:1px solid #f8cb2c;
 `

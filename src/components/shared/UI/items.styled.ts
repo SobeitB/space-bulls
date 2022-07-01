@@ -29,7 +29,7 @@ export const Item = styled.div.attrs((props: itmeProps) => props)`
 
 export const Img = styled.img`
    width:100%;
-   height:150px;
+   height:200px;
    border-radius:20px 20px 0 0;
 `
 
@@ -45,6 +45,12 @@ export const Title = styled.h4`
 `
 
 export const Network = styled.p`
+   color: #fcfcfc;
+   font-weight:bold;
+   font-size:11px;
+   margin-top:7px;
+`
+export const OpenseaLink = styled.a`
    color: #fcfcfc;
    font-weight:bold;
    font-size:11px;

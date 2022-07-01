@@ -27,9 +27,10 @@ export const MainMenu = () => {
    const balance = useWeb3ExecuteFunction();
    const {Moralis, account} = useMoralis()
    const [balanceMatter, setBalanceMatter] = useState(0)
+   const [unclaimedbalanceMatter, setUnclaimedbalanceMatter] = useState(0)
    const [stakeNftCount, setStakeNftCount] = useState(0)
-   // const getSignedTokenIdsDebug = useMoralisCloudFunction("getSignedTokenIdsDebug");
    const getSignedTokenIds = useMoralisCloudFunction("getSignedTokenIds");
+
    const {
       isModalWarning,
       onModal
@@ -38,46 +39,84 @@ export const MainMenu = () => {
 
    useEffect(() => {
       if(account) {
-         const options = {
-            contractAddress: address_antimatter,
-            functionName: "balanceOf",
-            abi: abi_antimatter.abi,
-            params: {
-               account:account
+         const asyncGet = () => {
+            const options = {
+               contractAddress: address_antimatter,
+               functionName: "balanceOf",
+               abi: abi_antimatter.abi,
+               params: {
+                  account:account
+               }
             }
-         }
+            
+            console.log(options)
+            balance.fetch({
+               params: options,
+               onSuccess: (res: any) => {
+                  console.log(Number(Moralis.Units.FromWei(res)))
+                  setBalanceMatter(Number(Moralis.Units.FromWei(res)))
+               }, 
+               onError: (err:any) => {
+                  console.log(err)
+               }
+            })
    
-         balance.fetch({
-            params: options,
-            onSuccess: (res: any) => {
-               setBalanceMatter(Number(Moralis.Units.FromWei(res)))
-            }, 
-            onError: (err:any) => {
-               console.log(err)
+            const getAsyncFunc = async () => {
+               const resSignedTokenIds:any = await getSignedTokenIds.fetch({
+                  params:{
+                     address:account
+                  }
+               })
+         
+               // Claimable
+               const optionsClaimableCheck = {
+                  contractAddress: address_staking,
+                  functionName: "claimable",
+                  abi: abi_staking.abi,
+                  params:{
+                     signedTokenIds:resSignedTokenIds.signedTokenIds,
+                     sender:account,
+                  }
+               }
+         
+               balance.fetch({
+                  params: optionsClaimableCheck,
+                  onSuccess:(res:any) => {
+                     setUnclaimedbalanceMatter(Number(Moralis.Units.FromWei(res.amount)))
+                  },
+         
+                  onError(error:Error) {
+                     console.log(error)
+                  },
+               })
             }
-         })
 
-         // retrieve
-         const optionsRetrieve = {
-            contractAddress: address_staking,
-            functionName: "retrieve",
-            abi: abi_staking.abi,
-            params: {
-               owner:account,
-               offset:0, 
-               limit:1000
-            }
-         }
+            getAsyncFunc()
    
-         balance.fetch({
-            params: optionsRetrieve,
-            onSuccess: (res: any) => {
-               setStakeNftCount(res.items.length)
-            }, 
-            onError: (err:any) => {
-               console.log(err)
+            // retrieve
+            const optionsRetrieve = {
+               contractAddress: address_staking,
+               functionName: "retrieve",
+               abi: abi_staking.abi,
+               params: {
+                  owner:account,
+                  offset:0, 
+                  limit:1000
+               }
             }
-         })
+      
+            balance.fetch({
+               params: optionsRetrieve,
+               onSuccess: (res: any) => {
+                  setStakeNftCount(res.items.length)
+               }, 
+               onError: (err:any) => {
+                  console.log(err)
+               }
+            })
+         }
+
+         asyncGet()
       }
    }, [Moralis, account])
    
@@ -124,7 +163,15 @@ export const MainMenu = () => {
 
          <InfoBlockBody>
             <InfoText>Balance</InfoText>
-            <InfoBlock>{Math.ceil(balanceMatter)}</InfoBlock>
+            <InfoBlock>{balanceMatter.toFixed(1)}</InfoBlock>
+         </InfoBlockBody>
+
+         <InfoBlockBody style={{
+            "position": "relative",
+            "top":`${document.documentElement.clientWidth === 769 ? '0px' : '-8px'}`
+         }}>
+            <InfoText>Unclaimed $Antimatter</InfoText>
+            <InfoBlock>{unclaimedbalanceMatter.toFixed(1)}</InfoBlock>
          </InfoBlockBody>
 
          <InfoBlockBody>
@@ -149,18 +196,25 @@ export const MainMenu = () => {
             <Tabs
                onClick={onNavigate("marketPlace")}  
                active={pathname === "/marketPlace"}
-            >MarketPlace</Tabs>
+            >Space store</Tabs>
 
-            {/* <Tabs
+            <Tabs
                onClick={onNavigate("create_product")}  
                active={pathname === "/create_product"}
-            >Create a product</Tabs> */}
+            >Create a product</Tabs>
 
             {data.length > 0 &&
                <Tabs
                   onClick={onNavigate("admin_panel")}  
                   active={pathname === "/admin_panel"}
                >Admin Panel</Tabs>
+            }
+
+            {data.length > 0 &&
+               <Tabs
+                  onClick={onNavigate("distribution")}  
+                  active={pathname === "/distribution"}
+               >Distribution</Tabs>
             }
 
 
