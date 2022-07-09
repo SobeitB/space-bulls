@@ -1,6 +1,8 @@
 import {
    Container,
    TitleName,
+   Form,
+   InputPrice,
 } from './Admin_panel.styled'
 
 import {
@@ -24,6 +26,8 @@ import {networks} from '../../shared/variable'
 const AdminPanel = () => {
    const { getNFTBalances, isLoading } = useNFTBalances();
    const [selectNft, setSelectNft] = useState<any[]>([]);
+   const [date, setDate] = useState<string>('');
+   const [openSea, setOpenSea] = useState<string>('');
    const [allNft, setAllNft] = useState<any[]>([]);
    const {account} = useMoralis();
 
@@ -106,10 +110,32 @@ const AdminPanel = () => {
             }
 
             {selectNft.length !== 0 && 
-               <FormPrice 
-                  type='admin_panel'
-                  nft={selectNft[0]} 
-               />
+               <Form>
+                  <InputPrice 
+                     type="date" 
+                     placeholder="date" 
+                     onChange={(e) => setDate(e.target.value)}
+                     value={date}
+                  />
+
+                  <div 
+                     style={{
+                        marginTop: '20px'
+                     }}
+                  />
+                  <InputPrice 
+                     placeholder="url opensea" 
+                     onChange={(e) => setOpenSea(e.target.value)}
+                     value={openSea}
+                  />
+
+                  <FormPrice 
+                     type='admin_panel'
+                     nft={selectNft[0]} 
+                     date={date}
+                     urlOpesea={openSea}
+                  />
+               </Form>
             }
          </div>
       </Container>

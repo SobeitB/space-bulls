@@ -22,6 +22,11 @@ export const Item = styled.div.attrs((props: itmeProps) => props)`
       margin: 0 auto;
    }
 
+   @media (max-width: 430px) {
+     width:260px;
+     min-height:240px;
+   }
+
    @media (max-width: 340px) {
       margin: 0 10px;
    }
@@ -29,8 +34,9 @@ export const Item = styled.div.attrs((props: itmeProps) => props)`
 
 export const Img = styled.img`
    width:100%;
-   height:200px;
+   height:335px;
    border-radius:20px 20px 0 0;
+   object-fit: cover;
 `
 
 export const BodyText = styled.div`
@@ -78,4 +84,8 @@ export const Claim = styled.button`
    &:hover{
       color: #fcfcfc;
    }
+`
+
+export const DeleteOffer = styled(Claim)`
+   width:50%;
 `

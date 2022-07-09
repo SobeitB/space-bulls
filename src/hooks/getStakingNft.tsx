@@ -23,11 +23,10 @@ export const useGetStakingNft = () => {
                limit:1000
             }
          }
-   
+
          contract.fetch({
             params: optionsRetrieve,
             onSuccess: (res: any) => {
-               
                getSignedTokenIds.fetch({
                   params:{
                      address:account
@@ -47,11 +46,10 @@ export const useGetStakingNft = () => {
                            signedTokenIds:res.signedTokenIds
                         }
                      }
-                     
+
                      contract.fetch({
                         params: optionsNftStaking,
                         onSuccess(results:any) {
-
                            const StakeNft:any[] = [];
                            results.items.forEach((item:any) => {
                               StakeNft.push({
@@ -60,7 +58,7 @@ export const useGetStakingNft = () => {
                                  isStaking:true
                               })
                            })
-                           
+
                            dispatch(setNftStaking(StakeNft));
                         },
                         onError(error) {
@@ -69,7 +67,7 @@ export const useGetStakingNft = () => {
                      })
                   }
                })
-            }, 
+            },
             onError: (err:any) => {
                console.log(err)
             }

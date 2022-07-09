@@ -6,50 +6,113 @@ import {
 import {memo, useCallback, useRef, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {useWeb3ExecuteFunction, useMoralis, useNewMoralisObject} from 'react-moralis'
-import {address_market, address_antimatter} from '../../../shared/variable'
+import {address_spaceBags, address_antimatter, address_market} from '../../../shared/variable'
+import abi_antimatter from '../../../shared/abi/Antimatter.json'
 import abi_market from '../../../shared/abi/SpaceMarket.json'
-import abi_721 from '../../../shared/abi/ERC721.json'
 import {useNotification} from 'web3uikit';
 
 interface FormProps {
    nft?: any;
+   pack?:number;
    type:string;
+   date?:string;
+   urlOpesea?:string;
 }
 
-export const FormPrice = ({nft, type}:FormProps) => {
+export const FormPrice = ({
+   nft, 
+   type, 
+   pack = 0,
+   date = '',
+   urlOpesea = '',
+}:FormProps) => {
    const navigate = useNavigate()
    const [price, setPrice] = useState<string>('')
    const {fetch} = useWeb3ExecuteFunction();
-   const {save} = useNewMoralisObject('MarketPlace');
+   const {save} = useNewMoralisObject('raffle');
    const {account,Moralis} = useMoralis()
    const textRef = useRef('');
    const dispatchNotification = useNotification();
 
    textRef.current = price
 
-   const onClick = useCallback(async () => {
-      console.log(textRef.current)
+   const onClickPack = useCallback(async () => {
       if(textRef.current.length === 0) {
+         dispatchNotification({
+            type:'info',
+            message: `Enter the amount.`,
+            title: 'info',
+            icon:'info',
+            position: 'topR',
+         })
          return;
       }
-      
-      const optionsErc721 = {
-         contractAddress: nft.token_address,
-         functionName: "approve",
-         abi: abi_721.abi,
+
+      if(textRef.current.length > 999) {
+         dispatchNotification({
+            type:'info',
+            message: `The number is too large.`,
+            title: 'info',
+            icon:'info',
+            position: 'topR',
+         })
+         return;
+      }
+
+      // chekc allowance matter
+      const optionsAllowanceCheck = {
+         contractAddress: address_antimatter,
+         functionName: "allowance",
+         abi: abi_antimatter.abi,
          params: {
-            to:address_market,  
-            tokenId:Number(nft.token_id)
+            owner:account,
+            spender: address_market,
          }
       }
 
+      const summ:any = await fetch({
+         params: optionsAllowanceCheck,
+         onError: (err:any) => {
+            console.log(err)
+         }
+      })
+
+      if(Number(Moralis.Units.FromWei(summ)) < pack + 1 ) {
+         // increaseAllowance matter
+         const optionsAllowance = {
+            contractAddress: address_antimatter,
+            functionName: "increaseAllowance",
+            abi: abi_antimatter.abi,
+            params: {
+               spender: address_market,
+               addedValue:Moralis.Units.ETH(100000)
+            }
+         }
+
+         dispatchNotification({
+            type:'info',
+            message: `Please confirm the sale of ${pack} $Antimatter`,
+            title: 'info',
+            icon:'info',
+            position: 'topR',
+         })
+   
+         await fetch({
+            params: optionsAllowance,
+            onError: (err:any) => {
+               console.log(err)
+            }
+         })
+      }
+
+      // create pack and offer
+      
       const optionsMarket = {
          contractAddress: address_market,
-         functionName: "create",
+         functionName: "packAndCreate",
          abi: abi_market,
          params: {
-            nftContract:nft.token_address,  
-            tokenId:Number(nft.token_id),
+            amount:Moralis.Units.ETH(pack),
             recipient:account,
             paymentContract:address_antimatter,
             price:Moralis.Units.ETH(textRef.current),
@@ -57,52 +120,51 @@ export const FormPrice = ({nft, type}:FormProps) => {
       }
 
       await fetch({
-         params: optionsErc721,
-         onError: (err:any) => {
-            console.log(err)
-         }
-      })
-      
-      await fetch({
          params: optionsMarket,
-         onSuccess: async (res: any) => {
-            
-            const saveOffer = {
-               token_id:nft.token_id,
-               img_url:JSON.parse(nft.metadata).image.replace("ipfs://", "http://tsb.imgix.net/ipfs/"),
-               collection_name:nft.name,
-            };
-
-            await save(saveOffer)
-
-            navigate('/marketPlace')
-         }, 
+         onSuccess: (res: any) => {
+            console.log(res)
+            dispatchNotification({
+               type:'info',
+               message: 'You have successfully placed a sale of your Antimatter!',
+               title: 'info',
+               icon:'info',
+               position: 'topR',
+            })
+         },
          onError: (err:any) => {
             console.log(err)
-            if(err.message.includes('ERR_ALREADY_EXISTS')) {
-               dispatchNotification({
-                  type:'warning',
-                  message: `This nft is on sale!`,
-                  title: "Warning",
-                  icon:'info',
-                  position: 'topR',
-               });
-            }
-
-            if(err.message.includes('ERR_APPROVE')) {
-               onClick()
-               dispatchNotification({
-                  type:'warning',
-                  message: `Try again!`,
-                  title: "Warning",
-                  icon:'info',
-                  position: 'topR',
-               });
-            }
          }
       })
+   }, [pack, fetch])
 
-   }, [nft, account, Moralis])
+   const onClick = useCallback(async () => {
+      
+      if(textRef.current.length === 0) {
+         return;
+      }
+
+      const saveOffer = {
+         raffle_nft_name:nft.name + ' #' + nft.token_id,
+         start_duration:'0',
+         Duration:Number(new Date(date.replace( /(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3"))).toString(),
+         entry_cost:textRef.current,
+         url_opensea:urlOpesea,
+         url_img:JSON.parse(nft.metadata).image.replace("ipfs://", "http://tsb.imgix.net/ipfs/"),
+         users:[],
+      };
+
+      await save(
+         saveOffer, 
+         {
+            onError:(error:any) => {
+               console.log(error)
+            }
+         }
+      )
+
+      navigate('/marketPlace')
+
+   }, [nft, account, Moralis,urlOpesea, date])
 
    return(
       <Form >
@@ -113,7 +175,7 @@ export const FormPrice = ({nft, type}:FormProps) => {
             placeholder={`${type === 'admin_panel' ? '$Antimatter' : "matic"}`}       
          />
          
-         <SendButton onClick={onClick} />
+         <SendButton onClick={type === 'createProduct' ? onClickPack : onClick} />
       </Form>
    );
 } 

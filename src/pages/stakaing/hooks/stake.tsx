@@ -22,6 +22,7 @@ export const useStake = () => {
       setDedicatedNfts: React.Dispatch<React.SetStateAction<stakingI[]>>
    ) => {
       // approve
+      console.log('satke if')
       if(chainId !== networks.POL_BYTE) {
          handleNewNotification('error', 'Please switch to Polygon network in your wallet application');
          return;
@@ -47,7 +48,7 @@ export const useStake = () => {
          }
       })
 
-
+      console.log(isApprovedForAll)
       if(!isApprovedForAll) {
          const optionsApprove = {
             contractAddress: address_bulls.TWO_D,
@@ -74,6 +75,7 @@ export const useStake = () => {
          })
       }
 
+      console.log('stake')
       // stake
       const optionsStake = {
          contractAddress: address_staking,
@@ -84,6 +86,7 @@ export const useStake = () => {
          }
       }
 
+      console.log(optionsStake)
       await smart.fetch({
          params: optionsStake,
          onSuccess: (res: any) => {

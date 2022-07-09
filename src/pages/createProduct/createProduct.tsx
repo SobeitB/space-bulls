@@ -24,7 +24,7 @@ import fiveKMobile from './img/172/5K.png'
 import tenKMobile from './img/172/10K.png'
 
 const CreateProduct = () => {
-   const [selectPack, setSelectPack] = useState('')
+   const [selectPack, setSelectPack] = useState(1000)
 
    return(
       <>
@@ -49,9 +49,9 @@ const CreateProduct = () => {
                />
 
                <ButtonChange 
-                  onClick={() => setSelectPack('10k')}
-                  isSelect={selectPack === '10k'}
-               >10.000 $Antimatter</ButtonChange>
+                  onClick={() => setSelectPack(1000)}
+                  isSelect={selectPack === 1000}
+               >1.000 $Antimatter</ButtonChange>
             </BodyChange>
             
             <BodyChange>
@@ -71,8 +71,8 @@ const CreateProduct = () => {
                />
 
                <ButtonChange 
-                  onClick={() => setSelectPack('5k')}
-                  isSelect={selectPack === '5k'}
+                  onClick={() => setSelectPack(5000)}
+                  isSelect={selectPack === 5000}
                >5.000 $Antimatter</ButtonChange>
             </BodyChange>
 
@@ -93,14 +93,17 @@ const CreateProduct = () => {
                />
                
                <ButtonChange 
-                  onClick={() => setSelectPack('1k')}
-                  isSelect={selectPack === '1k'}
-               >1.000 $Antimatter</ButtonChange>
+                  onClick={() => setSelectPack(10000)}
+                  isSelect={selectPack === 10000}
+               >10.000 $Antimatter</ButtonChange>
             </BodyChange>
          </ContainerBtnChange>
 
          <ContainerPrice>
-            <FormPrice type="createProduct" />
+            <FormPrice 
+               pack={selectPack}
+               type="createProduct" 
+            />
          </ContainerPrice>
       </>
    )

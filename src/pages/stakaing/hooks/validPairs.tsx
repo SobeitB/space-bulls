@@ -22,7 +22,7 @@ export const useValidPairs = (onModal:(type: string) => () => void) => {
                   limit:1000
                }
             }
-   
+
             const resRetrieve:any = await smart.fetch({
                params: optionsRetrieve,
             })
@@ -43,7 +43,7 @@ export const useValidPairs = (onModal:(type: string) => () => void) => {
                   signedTokenIds:resSignedTokenIds.signedTokenIds
                }
             }
-      
+
             smart.fetch({
                params: options,
                onSuccess: (res: any) => {
@@ -52,8 +52,8 @@ export const useValidPairs = (onModal:(type: string) => () => void) => {
                   if(res.pairs !== 0 && res.singles > 0) {
                      onModal('staking')()
                   }
-               }, 
-      
+               },
+
                onError: (err:any) => {
                   // handleNewNotification('error', 'An Error Has Occurred!')
                   // console.log(err)

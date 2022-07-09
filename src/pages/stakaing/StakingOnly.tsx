@@ -17,7 +17,7 @@ import {
    ContStakeBtn,
    Claimble
 } from "./Staking.styled";
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useMoralis, useWeb3ExecuteFunction, useMoralisCloudFunction} from "react-moralis";
 import { useAppSelector } from "../../app/hooks";
 import selectedNft from '../../assets/img/selectedNft.svg'
@@ -28,11 +28,9 @@ import {useOnDedicatedNft} from './hooks/onDedicatedNft'
 import {useModal} from './hooks/onModal'
 import {useStake} from './hooks/stake'
 import {useUnStake} from './hooks/unstake'
-import {Modal} from 'web3uikit';
 import { address_staking } from "../../shared/variable";
 import abi_staking from "../../shared/abi/SpaceStaking.json";
-import {useNotification} from 'web3uikit';
-import { PaginationPage } from "../../components/shared/PaginationPages/PaginationPages";
+import {useNotification, Modal} from 'web3uikit';
 
 export interface stakingI {
    token_id:string,
@@ -55,10 +53,6 @@ const StakingOnly = () => {
 
    const {Moralis, chainId, account} = useMoralis();
    const staking = useAppSelector(state => state.staking)
-
-   useEffect(() => {
-      console.log(Moralis.Units.ETH(1000))
-   }, [Moralis])
 
    const [dedicatedNfts, setDedicatedNfts] = useState<stakingI[]>([])
    const onDedicatedNft = useOnDedicatedNft(dedicatedNfts, setDedicatedNfts);
@@ -91,7 +85,7 @@ const StakingOnly = () => {
 
    }, [dedicatedNfts, chainId])
 
-   const onClaimble = async () => {
+   const onClaimble = useCallback(async () => {
       const resSignedTokenIds:any = await getSignedTokenIds.fetch({
          params:{
             address:account
@@ -147,7 +141,7 @@ const StakingOnly = () => {
             console.log(error.message)
          },
       })
-   }
+   }, [account, smart, Moralis.Units, getSignedTokenIds, dispatchNotification])
    
    return(
       <>

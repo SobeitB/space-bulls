@@ -13,33 +13,31 @@ import { MainMenu } from "../../components/screens/mainMenu/MainMenu";
 import { IsAdminProvider } from "../isAdmin";
 const Home = lazy(() => import ('../../pages/home/Home'));
 const StakingOnly = lazy(() => import ('../../pages/stakaing/StakingOnly'));
-const Rewards = lazy(() => import ('../../pages/rewards/Rewards'));
+// const Rewards = lazy(() => import ('../../pages/rewards/Rewards'));
 const MarketPlace = lazy(() => import ('../../pages/marketPlace/marketPlace'));
 const AdminPanel = lazy(() => import ('../../pages/admin_panel/Admin_panel'));
 const CreateProduct = lazy(() => import ('../../pages/createProduct/createProduct'));
-const Distribution = lazy(() => import ('../../pages/distribution/Distribution'));
+const Claim = lazy(() => import ('../../pages/claim/Claim'));
+const LimitedOffers = lazy(() => import ('../../pages/LimitedOffers/LimitedOffers'));
 
 export const Router = () => {
-   const {pathname} = useLocation();
+    const {pathname, search} = useLocation();
    const navigate = useNavigate()
-   const {account, isWeb3Enabled} = useMoralis()
+   const {account, isWeb3Enabled, user} = useMoralis()
 
    useEffect(() => {
-      if(!account && !isWeb3Enabled) {
+      if(
+          !account &&
+          !isWeb3Enabled &&
+          !search
+      ) {
          navigate('/')
       }
    }, [account, navigate, isWeb3Enabled])
 
    return (
       <Container>
-         {
-         (
-            pathname === '/rewards' ||
-            pathname === '/marketPlace' ||
-            pathname === '/create_product' ||
-            pathname === '/staking' 
-         )
-         && 
+         {pathname !== '/admin_panel' &&
             <MainMenu />
          }
 
@@ -77,6 +75,35 @@ export const Router = () => {
                }  
             />
 
+            {
+                user &&
+                user.attributes?.roles &&
+                user.attributes?.roles?.length !== 0 &&
+                <>
+                    <Route
+                        path="/claim"
+                        element={
+                           <Suspense fallback={ <LayoutLoader /> }>
+                              <LayoutPage>
+                                 <Claim />
+                              </LayoutPage>
+                           </Suspense>
+                        }
+                    />
+
+                    {/*<Route*/}
+                    {/*    path="/limited-offers"*/}
+                    {/*    element={*/}
+                    {/*       <Suspense fallback={ <LayoutLoader /> }>*/}
+                    {/*          <LayoutPage>*/}
+                    {/*             <LimitedOffers />*/}
+                    {/*          </LayoutPage>*/}
+                    {/*       </Suspense>*/}
+                    {/*    }*/}
+                    {/*/>*/}
+                </>
+            }
+
             <Route 
                path="/admin_panel"
                element={
@@ -84,19 +111,6 @@ export const Router = () => {
                      <LayoutPage>
                         <IsAdminProvider>
                            <AdminPanel />
-                        </IsAdminProvider>
-                     </LayoutPage>
-                  </Suspense>
-               }  
-            />
-
-            <Route 
-               path="/distribution"
-               element={
-                  <Suspense fallback={ <LayoutLoader /> }>
-                     <LayoutPage>
-                        <IsAdminProvider>
-                           <Distribution />
                         </IsAdminProvider>
                      </LayoutPage>
                   </Suspense>

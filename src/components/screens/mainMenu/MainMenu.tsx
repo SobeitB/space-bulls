@@ -20,12 +20,13 @@ import abi_staking from '../../../shared/abi/SpaceStaking.json'
 import {Modal} from 'web3uikit';
 import {useModal} from '../../../pages/stakaing/hooks/onModal'
 import {useValidPairs} from '../../../pages/stakaing/hooks/validPairs'
+import LimitedOffers from "../../../pages/LimitedOffers/LimitedOffers";
 
 export const MainMenu = () => {
    const nftStaking = useAppSelector(state => state.staking.nftStaking)
    const {pathname} = useLocation();
    const balance = useWeb3ExecuteFunction();
-   const {Moralis, account} = useMoralis()
+   const {Moralis, account, user} = useMoralis()
    const [balanceMatter, setBalanceMatter] = useState(0)
    const [unclaimedbalanceMatter, setUnclaimedbalanceMatter] = useState(0)
    const [stakeNftCount, setStakeNftCount] = useState(0)
@@ -49,11 +50,9 @@ export const MainMenu = () => {
                }
             }
             
-            console.log(options)
             balance.fetch({
                params: options,
                onSuccess: (res: any) => {
-                  console.log(Number(Moralis.Units.FromWei(res)))
                   setBalanceMatter(Number(Moralis.Units.FromWei(res)))
                }, 
                onError: (err:any) => {
@@ -145,7 +144,7 @@ export const MainMenu = () => {
                   nftStaking.length && nftStaking.reduce((prev, {reward}: {reward: number}) => (
                      prev + (reward * 50) 
                   ), 0)
-               }</p> {/* сколько буду в день получт */}
+               }</p>
             </div>
          }
       />
@@ -203,18 +202,28 @@ export const MainMenu = () => {
                active={pathname === "/create_product"}
             >Create a product</Tabs>
 
+            {
+                user &&
+                user.attributes?.roles &&
+                user.attributes?.roles?.length !== 0 &&
+                <>
+                   <Tabs
+                     onClick={onNavigate("claim")}
+                     active={pathname === "/claim"}
+                   >space Vault</Tabs>
+
+                   {/*<Tabs*/}
+                   {/*  onClick={onNavigate("limited-offers")}*/}
+                   {/*  active={pathname === "/limited-offers"}*/}
+                   {/*>Limited Offers</Tabs>*/}
+                </>
+            }
+
             {data.length > 0 &&
                <Tabs
                   onClick={onNavigate("admin_panel")}  
                   active={pathname === "/admin_panel"}
                >Admin Panel</Tabs>
-            }
-
-            {data.length > 0 &&
-               <Tabs
-                  onClick={onNavigate("distribution")}  
-                  active={pathname === "/distribution"}
-               >Distribution</Tabs>
             }
 
 

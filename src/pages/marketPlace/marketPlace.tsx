@@ -5,6 +5,7 @@ import {
    BodyText,
    Claim,
    OpenseaLink,
+   DeleteOffer,
 } from '../../components/shared/UI/items.styled'
 import {
    StakingNft,
@@ -12,15 +13,17 @@ import {
 
 import Pagination from '../../components/screens/Pagination/Pagination'
 import {useNotification} from 'web3uikit';
-import { notifyType} from 'web3uikit/dist/components/Notification/types';
-import { TIconType } from 'web3uikit/dist/components/Icon/collection';
 import { useCallback, useEffect, useState } from 'react';
 import { useMoralis, useWeb3ExecuteFunction, useMoralisQuery } from 'react-moralis';
-import {address_market, address_antimatter, address_staking} from '../../shared/variable'
+import {address_market, address_antimatter, address_staking, address_spaceBags} from '../../shared/variable'
 import abi_market from '../../shared/abi/SpaceMarket.json'
+import abi_bags from '../../shared/abi/SpaceBags.json'
 import abi_antimatter from '../../shared/abi/Antimatter.json'
-import {networks} from '../../shared/variable'
 import Countdown from 'react-countdown';
+
+import oneK from '../createProduct/img/1K.png'
+import fiveK from '../createProduct/img/5K.png'
+import tenK from '../createProduct/img/10K.png'
 
 export interface valueTimer {
    days: number;
@@ -29,23 +32,30 @@ export interface valueTimer {
    seconds:number;
 }
 
+interface itemMatter {
+   tokenId: number;
+   price: number | string;
+   amountMatters: number | string;
+   addressOwner:string;
+}
+
 const MarketPlace = () => {
-   const {chainId, Moralis, account} = useMoralis();
+   const {Moralis, account} = useMoralis();
    const {fetch} = useWeb3ExecuteFunction();
-   const [pages, setPages] = useState(1)
+   const [pages, setPages] = useState(0)
    const [allPages, setAllPages] = useState(1)
-   const [items, setItems] = useState<any[]>([])
+   const [items, setItems] = useState<itemMatter[]>([])
    const dispatchNotification = useNotification();
    const { data } = useMoralisQuery("raffle")
 
    useEffect(() => {
-      async function getSlotsNft() {
+      const getItems = async () => {
          const optionsViewAllPages = {
             contractAddress:address_market,
             functionName: "totalActive",
             abi: abi_market,
          }
-
+   
          await fetch({
             params: optionsViewAllPages,
             onSuccess: (res:any) => {
@@ -55,158 +65,55 @@ const MarketPlace = () => {
                console.log(err)
             }
          })
-
+   
          const optionsView = {
             contractAddress:address_market,
             functionName: "retrieve",
             abi: abi_market,
             params: {
-               offset:pages,
+               offset:pages * 10,
                limit:10,
             }
          }
-   
+
          await fetch({
             params: optionsView,
-            onSuccess: async (res:any) => {
-               const MarketPlace = Moralis.Object.extend("MarketPlace");
-               const query = new Moralis.Query(MarketPlace);
-               const objAll = await query.find();
-
-               res.items.forEach((itemOffer:any) => {
-                  objAll.forEach((item:any) => {
-                     if(Number(item?.attributes.token_id) === Number(itemOffer.nftTokenId)) {
-                        setItems((prev:any) => {
-                           return [
-                              ...prev,
-                              {
-                                 ...itemOffer,
-                                 img:item?.attributes.img_url,
-                                 name:item?.attributes.collection_name
-                              }
-                           ]
-                        })    
-                     }
-                  })
-               })
-            },
-            
-            onError: (err:Error) => {
-               console.log(err.message)
-            }
-         })
-      }
-
-      getSlotsNft()
-   }, [])
-
-   const handleNewNotification = (
-      type: notifyType,
-      icon?: TIconType,
-   ) => {
-      dispatchNotification({
-         type,
-         message: type === "error" ? 'An error has occurred!' : 'You have successfully made a purchase!',
-         title: type,
-         icon,
-         position: 'topR',
-      });
-   };
-
-   const buyOffer = useCallback((id:number, price:string, addressContract:string, type:string, network:string) => async () => {
-      if(type === 'matter') {
-         // if(networks.POL_BYTE !== chainId) {
-            // dispatchNotification({
-            //    type:'error',
-            //    message: 'Change the network to polygon!',
-            //    title: 'error',
-            //    icon:'info',
-            //    position: 'topR',
-            // });
-         //    return;
-         // }
-
-         // покупка нфт
-      } else {
-         // if(network !== chainId) {
-         //    dispatchNotification({
-         //       type:'error',
-         //       message: `Change the network to ${network === networks.ETH_BYTE ? 'mainnet' : 'polygon'}!`,
-         //       title: 'error',
-         //       icon:'info',
-         //       position: 'topR',
-         //    });
-         //    return;
-         // }
-
-         // разрешение покупки
-         const optionsAllowance = {
-            contractAddress:address_antimatter,
-            functionName: "increaseAllowance",
-            abi: abi_antimatter.abi,
-            params: {
-               spender:address_market,
-               addedValue:Moralis.Units.ETH(price),
-            }
-         }
-
-         console.log(optionsAllowance)
-         await fetch({
-            params: optionsAllowance,
             onSuccess: (res:any) => {
                console.log(res)
-            },
+               const testArrItems:itemMatter[] = []
+               
+               res.items.forEach(async (matterOffer:any) => {
+                  const optionsBagsAmount = {
+                     contractAddress:address_spaceBags,
+                     functionName: "bagsAmount",
+                     abi: abi_bags.abi,
+                     params: {
+                        '':Number(matterOffer.nftTokenId)
+                     }
+                  }
 
-            onError: (err:any) => {
-               console.log(err)
+                  const amountMatter:any = await fetch({
+                     params: optionsBagsAmount
+                  })
+
+                  if(matterOffer.status !== 3) {
+                     testArrItems.push({
+                        tokenId: Number(matterOffer.nftTokenId),
+                        price: Moralis.Units.FromWei(matterOffer.price),
+                        amountMatters: Number(amountMatter).toLocaleString('fullwide', {useGrouping:false}),
+                        addressOwner:matterOffer.owner
+                     })
+                  }
+               })
+
+               setItems(testArrItems)
             }
          })
 
-         // покупка nft
-         const optionsBuy = {
-            contractAddress:address_market,
-            functionName: "execute",
-            abi: abi_market,
-            params: {
-               nftContract:addressContract,
-               tokenId:id,
-               execute:Number(Moralis.Units.ETH(0))
-            }
-         }
-         
-         await fetch({
-            params: optionsBuy,
-            onSuccess: async (res:any) => {
-
-               const MarketPlace = Moralis.Object.extend("MarketPlace");
-               const query = new Moralis.Query(MarketPlace);
-               const thisOffer = await query
-               .equalTo("token_id", id)
-               .first();
-
-               if(thisOffer) {
-                  thisOffer.destroy()
-               }
-
-               handleNewNotification('success')
-               console.log(res)
-            },
-
-            onError: (err:any) => {
-               console.log(err)
-               if(err.message.includes('"message":"execution reverted: ERC20: insufficient allowance"')) {
-                  dispatchNotification({
-                     type:'error',
-                     message: `There is not enough Antimatter on the balance!`,
-                     title: 'error',
-                     icon:'info',
-                     position: 'topR',
-                  });
-               }
-            }
-         })
       }
-   }, [chainId, Moralis])
+
+      getItems()
+   }, [pages])
 
    const signUpRaffle = (
       Name:string, 
@@ -242,7 +149,6 @@ const MarketPlace = () => {
       await fetch({
          params: optionsBalanceOf,
          onSuccess: (res: any) => {
-            console.log(Number(Moralis.Units.FromWei(res)))
             balance = Number(Moralis.Units.FromWei(res))
          }, 
          onError: (err:any) => {
@@ -261,7 +167,6 @@ const MarketPlace = () => {
             }
          }
    
-         console.log(options)
          await fetch({
             params:options,
             onSuccess:async (res:any) => {
@@ -278,7 +183,16 @@ const MarketPlace = () => {
                   raffle.set("url_img", url_img);
                   raffle.set("users", [...users, account]);
             
-                  raffle.save().then((res:any) => console.log(res))
+                  await raffle.save().then((res:any) => {
+                     dispatchNotification({
+                        type:'success',
+                        message: `You have successfully purchased a ticket!`,
+                        title: 'Success',
+                        icon:'info',
+                        position: 'topR',
+                     });
+                     console.log(res)
+                  })
                }
             },
             onError: (err:any) => {
@@ -297,79 +211,151 @@ const MarketPlace = () => {
       }
    }
 
+   const buyMatter = useCallback((tokenId:number, price:string | number) => async () => {
+
+      const optionsExecuteAndUnpack:any = {
+         contractAddress:address_market,
+         functionName: "executeAndUnpack",
+         abi: abi_market,
+         params: {
+            nftContract:address_spaceBags,
+            tokenId,
+         },
+         msgValue: Moralis.Units.ETH(price),
+      }
+
+      await fetch({
+         params: optionsExecuteAndUnpack,
+         onSuccess: (res: any) => {
+            dispatchNotification({
+               type:'success',
+               message: `You have successfully bought antimatter, it will come to your wallet in the near future!`,
+               title: 'Success',
+               icon:'info',
+               position: 'topR',
+            });
+         }, 
+         onError: (err:any) => {
+            console.log(err)
+            if(err.includes('ERR_WRONG_SPACE_BAG')) {
+               dispatchNotification({
+                  type:'error',
+                  message: `This antimatter has already been purchased.`,
+                  title: 'Error',
+                  icon:'info',
+                  position: 'topR',
+               });
+               
+            }
+         }
+      })
+   }, [])
+
+   const cancelOffer = useCallback((tokenId:number) => async () => {
+      const optionsCancelAndUnpack:any = {
+         contractAddress:address_market,
+         functionName: "cancelAndUnpack",
+         abi: abi_market,
+         params: {
+            nftContract:address_spaceBags,
+            tokenId,
+         },
+      }
+
+      console.log(optionsCancelAndUnpack)
+      await fetch({
+         params: optionsCancelAndUnpack,
+         onSuccess: (res: any) => {
+            dispatchNotification({
+               type:'success',
+               message: `You have successfully deleted your offer`,
+               title: 'Success',
+               icon:'info',
+               position: 'topR',
+            });
+         }, 
+         onError: (err:any) => {
+            console.log(err)
+         }
+      })
+   }, [])
+
    return(
       <>
          <StakingNft heigth={true}>
-            {items.length ? items.map((item:any, index:number) => {
+            {data.length ? data.map((item:any) => {
+
+               if(
+                  Date.now() >= Number(item.attributes.Duration) + Number(item.attributes.start_duration)
+               ) {
+                  return(
+                     <Item key={item.id}>
+                        <Img 
+                           alt=""
+                           src={item.attributes.url_img}
+                        />
+                        <BodyText>
+                           <Network>{item.attributes.raffle_nft_name}</Network>
+                           <Network>{item.attributes.entry_cost} antimatter</Network>
+                           <Network>
+                              <Countdown 
+                                 date={Number(item.attributes.start_duration) + Number(item.attributes.Duration)} 
+                              />
+                           </Network>
+                           <OpenseaLink href={item.attributes.url_opensea}>OpenSea</OpenseaLink>
+                        </BodyText>
+   
+                        <Claim onClick={signUpRaffle(
+                           item.attributes.raffle_nft_name, 
+                           item.attributes.entry_cost,
+                           item.attributes.Duration,
+                           item.attributes.url_opensea,
+                           item.attributes.url_img,
+                           item.attributes.users,
+                           item.attributes?.users ? item.attributes.users.some((item:any) => item === account) : []
+                        )}>
+                           {item.attributes.users.some((item:any) => item === account) ? 'Raffle entered' : 'Buy a ticket'} 
+                        </Claim>
+                     </Item>
+                  )
+               }
+            }) : ''}
+
+            {items.length ? items.map((offer: itemMatter,) => {
+               
                return(
-                  <Item key={index}>
+                  <Item key={offer.tokenId}>
                      <Img 
                         alt=""
                         src={
-                           item.img.includes('http://tsb.imgix.net/ipfs//') ? 
-                           `${item.img}?w=330&h=200&fit=crop` :
-                           item.img
+                           (offer.amountMatters === '1000000000000000000000' && oneK) ||
+                           (offer.amountMatters === '5000000000000000000000' && fiveK) ||
+                           (offer.amountMatters === '10000000000000000000000' ? tenK : '')  
                         }
                      />
                      <BodyText>
-                        {item?.name && 
-                           <Network>Name: {item.name}</Network>
-                        }
-                        <Network>TokenId: {Number(item.nftTokenId)}</Network>
-                        <Network>Price: {Moralis.Units.FromWei(item.price)} antimatter</Network>
-                     </BodyText>
-                     <Claim onClick={
-                        buyOffer(Number(item.nftTokenId), 
-                        Moralis.Units.FromWei(item.price), 
-                        item.nftContract, 
-                        "nft", 
-                        networks.POL_BYTE
-                     )}>Buy</Claim>
-                  </Item>
-               )
-            })
-            :
-               ''
-               // <h1 className="nothing_title">There are no sales at the moment.</h1>
-            }
-
-            {data.length && data.map((item:any) => {
-               
-               return(
-                  <Item key={item.id}>
-                     <Img 
-                        alt=""
-                        src={item.attributes.url_img}
-                     />
-                     <BodyText>
-                        <Network>{item.attributes.raffle_nft_name}</Network>
-                        <Network>{item.attributes.entry_cost} antimatter</Network>
                         <Network>
-                           <Countdown 
-                              date={Number(item.attributes.start_duration) + Number(item.attributes.Duration)} 
-                           />
-                        </Network>
-                        <OpenseaLink href={item.attributes.url_opensea}>OpenSea</OpenseaLink>
+                           Amount: {
+                              (offer.amountMatters === '1000000000000000000000' && '1.000') ||
+                              (offer.amountMatters === '5000000000000000000000' && '5.000') ||
+                              (offer.amountMatters === '10000000000000000000000' ? '10.000' : '') 
+                           } antimatter
+                        </Network> 
+                        <Network>Price: {offer.price} matic</Network> 
                      </BodyText>
 
-                     <Claim onClick={signUpRaffle(
-                        item.attributes.raffle_nft_name, 
-                        item.attributes.entry_cost,
-                        item.attributes.Duration,
-                        item.attributes.url_opensea,
-                        item.attributes.url_img,
-                        item.attributes.users,
-                        item.attributes?.users ? item.attributes.users.some((item:any) => item === account) : []
-                     )}>
-                        {item.attributes.users.some((item:any) => item === account) ? 'Raffle entered' : 'Buy a ticket'} 
-                     </Claim>
+                     {account === offer.addressOwner.toLowerCase() && 
+                        <DeleteOffer onClick={cancelOffer(offer.tokenId)}>Cancel offer</DeleteOffer>
+                     }
+                     
+                     <Claim onClick={buyMatter(offer.tokenId, offer.price)}>Buy</Claim>
                   </Item>
                )
-            })}
+            }) : ''}
          </StakingNft>
 
          <Pagination 
-            pages={pages - 1}
+            pages={pages }
             allPages={allPages + 1}
             setPages={setPages}
          />

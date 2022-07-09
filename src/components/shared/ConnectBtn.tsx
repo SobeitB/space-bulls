@@ -7,7 +7,6 @@ import styled from 'styled-components'
 import metamask from '../../assets/img/metamask.png'
 import walletConnect from '../../assets/img/walletconnect.png'
 import { useCallback, useState } from "react";
-import WalletConnectProvider from "@maticnetwork/walletconnect-provider"
 
 const ConnectWalletBtn = styled.button`
    width:170px;
@@ -20,6 +19,22 @@ const ConnectWalletBtn = styled.button`
    padding:0 3px;
    cursor:pointer;
    margin-right:10px;
+
+  @media (max-width: 768px) {
+    margin-right:5px;
+  }
+
+  @media (max-width: 450px) {
+    width:140px;
+    height:35px;
+    font-size:10px;
+  }
+  
+  @media (max-width: 340px) {
+    width:120px;
+    height:30px;
+    font-size:8px;
+  }
 ` 
 
 const BodyConnectWallet = styled.div`
@@ -37,7 +52,11 @@ export const ConnectWallet = () => {
       setModalWallet(!isModalWallet);
    }, [isModalWallet])
 
+   // maiinet
    let chainId = networks.POL_BYTE === '0x89' ? 89 : 13881
+   //
+   // testnet
+   // let chainId = networks.POL_BYTE === '0x13881' ? 13881 : 89
 
    return(
       <div className='ConnectButton'>
@@ -64,7 +83,6 @@ export const ConnectWallet = () => {
                         await authenticate({
                            provider: "walletconnect",
                            chainId: 137,
-                        
                         });
                         setModalWallet(!isModalWallet)
                      }}
