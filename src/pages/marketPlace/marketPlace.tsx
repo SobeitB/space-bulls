@@ -286,7 +286,7 @@ const MarketPlace = () => {
             {data.length ? data.map((item:any) => {
 
                if(
-                  Date.now() >= Number(item.attributes.Duration) + Number(item.attributes.start_duration)
+                  Date.now() !== Number(item.attributes.Duration) + Number(item.attributes.start_duration)
                ) {
                   return(
                      <Item key={item.id}>
