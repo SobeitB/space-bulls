@@ -37,7 +37,9 @@ export const Router = () => {
 
    return (
       <Container>
-         {pathname !== '/admin_panel' &&
+         {
+            pathname !== '/admin_panel' &&
+            pathname !== '/' &&
             <MainMenu />
          }
 

@@ -17,7 +17,7 @@ export const address_antimatter = '0xF1eF55Ca14A6D2b5C812a386Ea45bf20980CC54C';
 export const address_spaceBags = '0x6583d13d0742b337811B41c72421fC68AE2365bf';
 export const address_market = '0xE2844Ed5E521CE707fA4FaC15D13BcbD66E05c2f';
 
-export const serv = 'http://localhost:5000/' // https://spacebullsserver.fun/
+export const serv = 'https://spacebullsserver.fun/' //
 export const url_auth2 = 'https://discord.com/api/oauth2/authorize?client_id=994047048284373004&redirect_uri=https%3A%2F%2Fapp.thespacebulls.com%2Fstaking&response_type=code&scope=identify%20email%20guilds%20guilds.members.read'
 export const serverUrl = 'https://mcyppafmgype.usemoralis.com:2053/server'
 export const appId = 'kFxaD7mClqJil1JZWN6sEkYopAFr6B1AVqFcLbu5'
