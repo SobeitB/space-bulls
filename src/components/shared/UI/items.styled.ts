@@ -8,7 +8,7 @@ export const Item = styled.div.attrs((props: itmeProps) => props)`
    width:330px;
    min-height:230px;
    border-radius:20px;
-   background-color:#171923;
+   background-color:#141a38;
    border:${props => props.select && '1px solid #f8cb2c'};
 
    display:flex;
@@ -73,8 +73,8 @@ export const Description = styled.p`
 export const Claim = styled.button`
    width:90%;
    min-height:35px;
-   background-color:#726f4c;
-   color: #25282c;
+   background-color:rgb(87, 104, 234);
+   color: white;
    font-weight:bold;
    border: none;
    border-radius:5px;

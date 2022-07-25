@@ -1,4 +1,4 @@
-import { ConnectWallet } from "../../shared/ConnectBtn"
+import { ConnectWallet } from "../../shared/ConnectBtn/ConnectBtn"
 import {
    HeaderComp,
    Container,
@@ -43,13 +43,22 @@ export const Header = () => {
                       </a>
                   }
 
+
                   {user && user.attributes?.discord_name &&
-                      <ConnectDs>
-                         <ImgAvatar
-                             src={`https://cdn.discordapp.com/avatars/${user.attributes?.discord_id}/${user.attributes?.idAvatar}.png`}
-                         />
-                         <span>{user.attributes?.discord_name}</span>
-                      </ConnectDs>
+                      <a style={{textDecoration:"none"}} href={url_auth2} >
+                          <ConnectDs>
+                              <ImgAvatar
+                                  src={`https://cdn.discordapp.com/avatars/${user.attributes?.discord_id}/${user.attributes?.idAvatar}.png`}
+                              />
+
+                              <span>{
+                                 user.attributes?.discord_name.length >= 7 ?
+                                    user.attributes?.discord_name.substring(0, 7) + '...'
+                                    :
+                                    user.attributes?.discord_name
+                              }</span>
+                          </ConnectDs>
+                      </a>
                   }
 
                   <ConnectWallet />

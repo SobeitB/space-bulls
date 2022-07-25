@@ -3,8 +3,7 @@ import {ReactComponent as DsLogo} from '../../../assets/img/ds.svg'
 
 export const HeaderComp = styled.header`
    height: 84px;
-   border-bottom: 1px solid #292929;
-   background: #181818;
+  overflow: hidden;
 
   @media (max-width: 768px) {
     height: 130px;
@@ -30,6 +29,7 @@ export const Container = styled.div`
 `
 
 export const ContainerHeader = styled.div`
+   
    width:100%;
    height: 100%;
    display: flex;

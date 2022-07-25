@@ -28,9 +28,10 @@ import {useOnDedicatedNft} from './hooks/onDedicatedNft'
 import {useModal} from './hooks/onModal'
 import {useStake} from './hooks/stake'
 import {useUnStake} from './hooks/unstake'
-import { address_staking } from "../../shared/variable";
+import {address_staking, networks} from "../../shared/variable";
 import abi_staking from "../../shared/abi/SpaceStaking.json";
 import {useNotification, Modal} from 'web3uikit';
+import { NoSaSles } from "../LimitedOffers/LimitedOffer.styled";
 
 export interface stakingI {
    token_id:string,
@@ -177,7 +178,7 @@ const StakingOnly = () => {
          </ContStakeBtn>
 
          <StakingNft>
-            {AllNftStaking.length ? 
+            {chainId === networks.INIT_NFT ? AllNftStaking.length ?
                AllNftStaking.map((nft:stakingI) => (
                   <Nft 
                      key={nft.token_id}
@@ -209,17 +210,10 @@ const StakingOnly = () => {
                ))
                :
                <h1 className="nothing_title">You don't have any SpaceBulls unboxed</h1>
+               :
+               <NoSaSles>Reconnect to the Polygon network!</NoSaSles>
             }
 
-            {AllNftStaking.length ?
-               // <PaginationPage 
-               //    page={0}
-               //    allPage={0}
-               // />
-               ''
-               :
-               ''
-            }
          </StakingNft>
       </>
    );

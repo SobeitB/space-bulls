@@ -30,7 +30,7 @@ export const useInitNft = (
          getNFTBalances({
             params: {
                address: typeof account === "string" ? account : '', // typeof account === "string" ? account : ''
-               chain: networks.POL_BYTE === '0x89' ? networks.POL_BYTE : networks.ETH_BYTE,  //networks.POL_BYTE === '0x13881' ? networks.ETH_BYTE : networks.POL_BYTE
+               chain: networks.INIT_NFT,
                token_addresses:[address_bulls.TWO_D]
             },
    

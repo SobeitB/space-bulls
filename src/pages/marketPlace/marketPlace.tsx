@@ -15,7 +15,7 @@ import Pagination from '../../components/screens/Pagination/Pagination'
 import {useNotification} from 'web3uikit';
 import { useCallback, useEffect, useState } from 'react';
 import { useMoralis, useWeb3ExecuteFunction, useMoralisQuery } from 'react-moralis';
-import {address_market, address_antimatter, address_staking, address_spaceBags} from '../../shared/variable'
+import {address_market, address_antimatter, address_staking, address_spaceBags, networks} from '../../shared/variable'
 import abi_market from '../../shared/abi/SpaceMarket.json'
 import abi_bags from '../../shared/abi/SpaceBags.json'
 import abi_antimatter from '../../shared/abi/Antimatter.json'
@@ -24,6 +24,8 @@ import Countdown from 'react-countdown';
 import oneK from '../createProduct/img/1K.png'
 import fiveK from '../createProduct/img/5K.png'
 import tenK from '../createProduct/img/10K.png'
+import {useGetMatterBalance} from "../../hooks/getMatterBalance";
+import { NoSaSles } from '../LimitedOffers/LimitedOffer.styled';
 
 export interface valueTimer {
    days: number;
@@ -40,13 +42,14 @@ interface itemMatter {
 }
 
 const MarketPlace = () => {
-   const {Moralis, account} = useMoralis();
+   const {Moralis, account, chainId} = useMoralis();
    const {fetch} = useWeb3ExecuteFunction();
    const [pages, setPages] = useState(0)
-   const [allPages, setAllPages] = useState(1)
-   const [items, setItems] = useState<itemMatter[]>([])
+   const [allPages, setAllPages] = useState(0)
+   const [items, setItems] = useState<itemMatter[] | string>('loading')
    const dispatchNotification = useNotification();
    const { data } = useMoralisQuery("raffle")
+   const dataMatter = useGetMatterBalance()
 
    useEffect(() => {
       const getItems = async () => {
@@ -135,6 +138,20 @@ const MarketPlace = () => {
          });
          return;
       }
+
+      if(
+         dataMatter &&
+         dataMatter?.length !== 0 &&
+         dataMatter[0] && Number(Moralis.Units.FromWei(dataMatter[0].balance)) < Number(price)
+      ) {
+         return dispatchNotification({
+            type:'error',
+            message: `You don't have enough $Antimatter`,
+            title: 'Error',
+            icon:'info',
+            position: 'topR',
+         });
+      }
       
       const optionsBalanceOf = {
          contractAddress: address_antimatter,
@@ -212,6 +229,19 @@ const MarketPlace = () => {
    }
 
    const buyMatter = useCallback((tokenId:number, price:string | number) => async () => {
+      if(
+         dataMatter &&
+         dataMatter?.length !== 0 &&
+         dataMatter[0] && Number(Moralis.Units.FromWei(dataMatter[0].balance)) < Number(price)
+      ) {
+         return dispatchNotification({
+            type:'error',
+            message: `You don't have enough $Antimatter`,
+            title: 'Error',
+            icon:'info',
+            position: 'topR',
+         });
+      }
 
       const optionsExecuteAndUnpack:any = {
          contractAddress:address_market,
@@ -280,17 +310,17 @@ const MarketPlace = () => {
       })
    }, [])
 
-   return(
+   return (
       <>
          <StakingNft heigth={true}>
-            {data.length ? data.map((item:any) => {
+            {data.length ? data.map((item: any) => {
 
-               if(
-                  Date.now() !== Number(item.attributes.Duration) + Number(item.attributes.start_duration)
+               if (
+                  Date.now() <= Number(item.attributes.Duration) + Number(item.attributes.start_duration)
                ) {
-                  return(
+                  return (
                      <Item key={item.id}>
-                        <Img 
+                        <Img
                            alt=""
                            src={item.attributes.url_img}
                         />
@@ -298,69 +328,78 @@ const MarketPlace = () => {
                            <Network>{item.attributes.raffle_nft_name}</Network>
                            <Network>{item.attributes.entry_cost} antimatter</Network>
                            <Network>
-                              <Countdown 
-                                 date={Number(item.attributes.start_duration) + Number(item.attributes.Duration)} 
+                              <Countdown
+                                 date={Number(item.attributes.start_duration) + Number(item.attributes.Duration)}
                               />
                            </Network>
                            <OpenseaLink href={item.attributes.url_opensea}>OpenSea</OpenseaLink>
                         </BodyText>
-   
+
                         <Claim onClick={signUpRaffle(
-                           item.attributes.raffle_nft_name, 
+                           item.attributes.raffle_nft_name,
                            item.attributes.entry_cost,
                            item.attributes.Duration,
                            item.attributes.url_opensea,
                            item.attributes.url_img,
                            item.attributes.users,
-                           item.attributes?.users ? item.attributes.users.some((item:any) => item === account) : []
+                           item.attributes?.users ? item.attributes.users.some((item: any) => item === account) : []
                         )}>
-                           {item.attributes.users.some((item:any) => item === account) ? 'Raffle entered' : 'Buy a ticket'} 
+                           {item.attributes.users.some((item: any) => item === account) ? 'Raffle entered' : 'Buy a ticket'}
                         </Claim>
                      </Item>
                   )
                }
             }) : ''}
 
-            {items.length ? items.map((offer: itemMatter,) => {
-               
-               return(
+            {items === 'loading' && <NoSaSles>Loading...</NoSaSles>}
+
+            {chainId === networks.INIT_NFT &&
+               items.length &&
+               typeof items !== "string" ?
+               items.map((offer: itemMatter,) => {
+
+               return (
                   <Item key={offer.tokenId}>
-                     <Img 
+                     <Img
                         alt=""
                         src={
                            (offer.amountMatters === '1000000000000000000000' && oneK) ||
                            (offer.amountMatters === '5000000000000000000000' && fiveK) ||
-                           (offer.amountMatters === '10000000000000000000000' ? tenK : '')  
+                           (offer.amountMatters === '10000000000000000000000' ? tenK : '')
                         }
                      />
                      <BodyText>
                         <Network>
                            Amount: {
-                              (offer.amountMatters === '1000000000000000000000' && '1.000') ||
-                              (offer.amountMatters === '5000000000000000000000' && '5.000') ||
-                              (offer.amountMatters === '10000000000000000000000' ? '10.000' : '') 
-                           } antimatter
-                        </Network> 
-                        <Network>Price: {offer.price} matic</Network> 
+                           (offer.amountMatters === '1000000000000000000000' && '1.000') ||
+                           (offer.amountMatters === '5000000000000000000000' && '5.000') ||
+                           (offer.amountMatters === '10000000000000000000000' ? '10.000' : '')
+                        } antimatter
+                        </Network>
+                        <Network>Price: {offer.price} matic</Network>
                      </BodyText>
 
-                     {account === offer.addressOwner.toLowerCase() && 
-                        <DeleteOffer onClick={cancelOffer(offer.tokenId)}>Cancel offer</DeleteOffer>
+                     {account === offer.addressOwner.toLowerCase() &&
+                         <DeleteOffer onClick={cancelOffer(offer.tokenId)}>Cancel offer</DeleteOffer>
                      }
-                     
+
                      <Claim onClick={buyMatter(offer.tokenId, offer.price)}>Buy</Claim>
                   </Item>
                )
             }) : ''}
+
+            {chainId !== networks.INIT_NFT && <NoSaSles>Reconnect to the Polygon network!</NoSaSles>}
          </StakingNft>
 
-         <Pagination 
-            pages={pages }
-            allPages={allPages + 1}
-            setPages={setPages}
-         />
+         {chainId === networks.INIT_NFT &&
+             <Pagination
+                 pages={pages}
+                 allPages={allPages === 0 ? allPages + 1 : allPages}
+                 setPages={setPages}
+             />
+         }
       </>
-   )
+   );
 }
 
 export default MarketPlace;

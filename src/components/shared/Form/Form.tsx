@@ -185,5 +185,5 @@ interface ButtonProps {
 }
 
 export const SendButton = memo(({onClick}: ButtonProps) => {
-   return <BtnConfrim onClick={onClick}>Confrim</BtnConfrim>
+   return <BtnConfrim onClick={onClick}>Confirm</BtnConfrim>
 })

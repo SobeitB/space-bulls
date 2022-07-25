@@ -30,7 +30,7 @@ export const ContainerInfo = styled.div`
    display: flex;
    align-items:center;
    justify-content:space-between;
-   margin-top:40px;
+   margin-top:30px;
 
    @media (max-width:769px) {
      flex-direction: column;
@@ -61,7 +61,9 @@ export const InfoText = styled.h2`
    color:#f8cb2c;
    margin-block-start: 0;
    margin-block-end: 0;
-   font-size:17px;
+   font-size: 15px;
+   position: relative;
+   left: 3px;
 
    @media (max-width:992px) {
      font-size:14px;
@@ -81,8 +83,10 @@ export const InfoBlock = styled.div`
    padding-left:10px;
    margin-top: 10px;
 
-   background-color:#323232;
+   background-color:rgb(32, 52, 110);
+   border-radius: 10px;
    font-size:18px;
+   color:#fff;
 
    @media (max-width:769px) {
       width:80%;
@@ -91,8 +95,24 @@ export const InfoBlock = styled.div`
 
 export const Pagination = styled.div`
    width:100%;
-   margin:15px 0 20px 0;
+   margin:15px 0 10px 0;
    border-bottom: 2px solid #323232;
+
+   @media (max-width: 768px) {
+     width:60%;
+     margin:0 auto;
+   }
+
+  @media (max-width: 480px) {
+    width:80%;
+    margin:0 auto;
+  }
+
+  @media (max-width: 400px) {
+    width:90%;
+    margin:0 auto;
+  }
+  
    @media (max-width: 330px) {
       margin: 15px 10px 20px 10px;
    }
@@ -103,9 +123,9 @@ export const PaginationTabs = styled.div`
    display: flex;
    align-items: center;
 
-   @media (max-width: 500px) {
+   @media (max-width: 768px) {
       flex-direction: column;
-      height:170px;
+      height:250px;
    }
 `
 
@@ -119,7 +139,7 @@ export const Tabs = styled.button.attrs((props: propsTabs) => props)`
    background: none;
    cursor: pointer;
    font-size:13.5px;
-   color:${props => props.active ? '#c3c3c3' : '#919191'};
+   color:${props => props.active ? '#fff' : '#919191'};
    border-bottom:2px solid ${props => props.active ? '#f8cb2c' : '#e0ecff'};
    margin-left:15px;
 
@@ -132,7 +152,7 @@ export const Tabs = styled.button.attrs((props: propsTabs) => props)`
       margin-left:10px;
    }
 
-   @media (max-width: 500px) {
+   @media (max-width: 768px) {
       margin-left:0px;
    }
 `
@@ -163,7 +183,7 @@ export const IsStaking = styled.button`
    background: none;
    cursor: pointer;
    font-size:14px;
-   color:#a5a5a5;
+   color:#fff;
 
    @media (max-width: 360px) {
       font-size:12px;
@@ -292,7 +312,7 @@ export const StakeAllBtn = styled.button.attrs((props: propsNft) => props)`
    height:35px;
    border-radius:10px;
    border:none;
-   background-color:#2b2b2b;
+   background-color:rgb(32, 52, 110);
    border: 1px solid ${(props) => props.isSelected ? '#f8cb2c' : 'none'};
    margin-top:15px;
    color:#fdfdfd;
@@ -317,4 +337,11 @@ export const Claimble = styled(StakeAllBtn)`
    height:35px;
    margin-right:15px;
    border:1px solid #f8cb2c;
+`
+
+export const BodyMenu = styled.div`
+  backdrop-filter:blur(100px);
+  padding:20px;
+  margin:10px 0;
+  border-radius:36px;
 `

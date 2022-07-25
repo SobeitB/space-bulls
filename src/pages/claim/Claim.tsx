@@ -5,7 +5,7 @@ import {
     ClaimBtn,
     ClaimBody
 } from './Claim.styled'
-import {Modal, Input, useNotification} from 'web3uikit';
+import {Modal, Input, useNotification, Button} from 'web3uikit';
 import {useCallback, useState} from 'react'
 import {
     useNativeBalance,
@@ -15,6 +15,7 @@ import {
 import {serv} from "../../shared/variable";
 import {useGetMatterBalance} from "../../hooks/getMatterBalance";
 import {useTransferMatter} from "../../hooks/transerMatter";
+import {NoSaSles} from "../LimitedOffers/LimitedOffer.styled";
 
 const Claim = () => {
     const [isClaim, setIsClaim] = useState(false);
@@ -38,7 +39,8 @@ const Claim = () => {
 
    const onClaim = useCallback(async () => {
        if(balance.balance && user) {
-           const minClaim = chainId === '0x4' ? 1 : 150000
+           const minClaim = chainId === '0x4' ? 1 : 150001
+
            if(Number(valMatter) <= minClaim) {
                dispatchNotification({
                    type:"error",
@@ -52,12 +54,11 @@ const Claim = () => {
 
           transfer(valMatter, (res:any) => {
              const recipis = (Number(valMatter) * 100) / 30_000_000 // процент числа от 30кк
-             console.log(recipis)
 
              const optUserClaim = {
                 ds_username:user.attributes.discord_name + '#' + user.attributes.ds_IdDiscriminator,
                 ethAddress:account,
-                recipis:recipis
+                recipis,
              }
 
              save(optUserClaim, {
@@ -86,43 +87,66 @@ const Claim = () => {
 
    return(
       <Body>
-         <Title>Ethereum Wallet balance:</Title>
-          {balance.balance &&
-              <Balance>{Moralis.Units.FromWei(balance.balance)} eth</Balance>
-          }
 
-         <ClaimBtn onClick={onIsClaim}>Claim</ClaimBtn>
+         {
+            user &&
+            user?.attributes?.discord_name.length !== 0 ?
+               <>
+                  <Title>Ethereum Wallet balance:</Title>
+                  {balance.balance &&
+                      <Balance>{Moralis.Units.FromWei(balance.balance)} eth</Balance>
+                  }
 
-          <Modal
-              isVisible={isCorrection}
-              onCloseButtonPressed={onIsCorrection}
-              onCancel={onIsCorrection}
-              onOk={onClaim}
-              children={
-                  <div style={{"marginTop": "5px", "marginBottom": '15px'}}>
-                      This amount of $Antimatter equals to {valMatter} share of Space Vault. Do you wish to proceed?
-                  </div>
-              }
-          />
+                  <ClaimBtn onClick={onIsClaim}>Claim</ClaimBtn>
 
-          <Modal
-            isVisible={isClaim}
-            onCloseButtonPressed={onIsClaim}
-            onCancel={onIsClaim}
-            onOk={onIsCorrection}
-            title="What amount of $Antimatter do you wish to use for claiming?"
-            children={
-               <ClaimBody>
-                   <Input
-                       label="claim Antimatter"
-                       name="claim"
-                       type="number"
-                       value={valMatter}
-                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValMatter(e.target.value)}
-                   />
-               </ClaimBody>
-            }
-         />
+                  <Modal
+                     isVisible={isCorrection}
+                     onCloseButtonPressed={onIsCorrection}
+                     onCancel={onIsCorrection}
+                     onOk={onClaim}
+                     children={
+                        <div style={{"marginTop": "5px", "marginBottom": '15px'}}>
+                           This amount of $Antimatter equals to {Number((Number(valMatter) * 100) / 30_000_000).toFixed(2)}% share of Space Vault. Do you wish to proceed?
+                        </div>
+                     }
+                  />
+
+                  <Modal
+                     isVisible={isClaim}
+                     onCloseButtonPressed={onIsClaim}
+                     onCancel={onIsClaim}
+                     onOk={onIsCorrection}
+                     title="What amount of $Antimatter do you wish to use for claiming?"
+                     children={
+                        <ClaimBody>
+                           <Input
+                              label="claim Antimatter"
+                              name="claim"
+                              type="number"
+                              value={valMatter}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValMatter(e.target.value)}
+                           />
+
+                           <ClaimBtn
+                              isMax={true}
+                              onClick={() => {
+                                 console.log(data)
+                                 if(
+                                    data &&
+                                    data?.length !== 0 &&
+                                    data[0].balance
+                                 ) {
+                                    setValMatter(Moralis.Units.FromWei(data[0].balance))
+                                 }
+                              }}
+                           >Max</ClaimBtn>
+                        </ClaimBody>
+                     }
+                  />
+               </>
+               :
+               <NoSaSles>Please connect your discord account to access this tab</NoSaSles>
+         }
       </Body>
    );
 }

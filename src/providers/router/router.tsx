@@ -23,7 +23,7 @@ const LimitedOffers = lazy(() => import ('../../pages/LimitedOffers/LimitedOffer
 export const Router = () => {
     const {pathname, search} = useLocation();
    const navigate = useNavigate()
-   const {account, isWeb3Enabled, user} = useMoralis()
+   const {account, isWeb3Enabled,} = useMoralis()
 
    useEffect(() => {
       if(
@@ -33,6 +33,7 @@ export const Router = () => {
       ) {
          navigate('/')
       }
+
    }, [account, navigate, isWeb3Enabled])
 
    return (
@@ -77,34 +78,28 @@ export const Router = () => {
                }  
             />
 
-            {
-                user &&
-                user.attributes?.roles &&
-                user.attributes?.roles?.length !== 0 &&
-                <>
-                    <Route
-                        path="/claim"
-                        element={
-                           <Suspense fallback={ <LayoutLoader /> }>
-                              <LayoutPage>
-                                 <Claim />
-                              </LayoutPage>
-                           </Suspense>
-                        }
-                    />
 
-                    {/*<Route*/}
-                    {/*    path="/limited-offers"*/}
-                    {/*    element={*/}
-                    {/*       <Suspense fallback={ <LayoutLoader /> }>*/}
-                    {/*          <LayoutPage>*/}
-                    {/*             <LimitedOffers />*/}
-                    {/*          </LayoutPage>*/}
-                    {/*       </Suspense>*/}
-                    {/*    }*/}
-                    {/*/>*/}
-                </>
-            }
+            <Route
+               path="/claim"
+               element={
+                  <Suspense fallback={ <LayoutLoader /> }>
+                     <LayoutPage>
+                        <Claim />
+                     </LayoutPage>
+                  </Suspense>
+               }
+            />
+
+            <Route
+               path="/limited-offers"
+               element={
+                  <Suspense fallback={ <LayoutLoader /> }>
+                     <LayoutPage>
+                        <LimitedOffers />
+                     </LayoutPage>
+                  </Suspense>
+               }
+            />
 
             <Route 
                path="/admin_panel"

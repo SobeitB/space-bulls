@@ -6,7 +6,7 @@ import {
    Text,
 } from './Home.styled'
 import hub from './Hub.png'
-import { ConnectWallet } from "../../components/shared/ConnectBtn"
+import { ConnectWallet } from "../../components/shared/ConnectBtn/ConnectBtn"
 import {useNavigate} from 'react-router-dom'
 import {useMoralis} from 'react-moralis'
 import { useEffect } from 'react'

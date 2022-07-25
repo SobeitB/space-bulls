@@ -49,9 +49,11 @@ export const Balance = styled.h2`
    }
 `
 
-export const ClaimBtn = styled.button`
-   margin:0 auto;
-   margin-top:40px;
+export const ClaimBtn = styled.button.attrs((props: {isMax:boolean}) => props)`
+   
+   margin:${(props) => props.isMax ? '' : '0 auto'};
+   margin-top:${(props) => props.isMax ? '' : '40px'};
+   margin-left:${(props) => props.isMax ? '20px' : ''};
    width:160px;
    height:40px;
    border:none;
@@ -62,9 +64,9 @@ export const ClaimBtn = styled.button`
 `
 
 export const ClaimBody = styled.div`
-   height: 70px;
-    width: 100%;
-  display: flex;
-  align-content: center;
-  justify-content: center;
+     height: 70px;
+     width: 100%;
+     display: flex;
+     align-content: center;
+     justify-content: center;
 `

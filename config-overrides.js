@@ -1,5 +1,6 @@
 const webpack = require("webpack");
-var path = require("path");
+const path = require("path");
+
 module.exports = function override(config, env) {
     config.resolve.fallback = {
         "os": require.resolve("os-browserify/browser"),

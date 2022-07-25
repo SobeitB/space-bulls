@@ -9,29 +9,58 @@ import {
 import {
    StakingNft,
 } from "../stakaing/Staking.styled";
-// import Countdown from "react-countdown";
-import {useCallback, useEffect} from 'react'
+import {useCallback, useEffect, useState} from 'react'
 import {useTransferMatter} from "../../hooks/transerMatter";
 import {serv} from "../../shared/variable";
-import {useMoralis, useMoralisQuery} from 'react-moralis'
+import {useMoralis} from 'react-moralis'
 import {useNotification} from "web3uikit";
-import nitro from './img/Discord_Nitro_.png';
+import nitro from './img/Discord_Nitro.png';
 import Moralis from "moralis";
 import {NoSaSles} from "./LimitedOffer.styled";
+import Pagination from '../../components/screens/Pagination/Pagination'
 
 const LimitedOffers = () => {
-   const { data } = useMoralisQuery("LimitedOffers", )
+   const [pages, setPages] = useState(0)
+   const [allPages, setAllPages] = useState(0)
+   const [data, setData] = useState<any[]>([])
+
    const {user} = useMoralis()
    const transfer = useTransferMatter()
    const dispatchNotification = useNotification();
 
-   const buyNitro = useCallback((name:string, price:string, id: string) => async () => {
+   useEffect(() => {
+      async function getLimitedOffres() {
+         const LimitedOffers = Moralis.Object.extend("LimitedOffers");
+         const query = new Moralis.Query(LimitedOffers);
+         const LimitedOffersAll = await query.find();
+
+         const obj = await query
+            .limit(10)
+            .skip(10 * pages)
+            .find()
+         setAllPages(LimitedOffersAll.length)
+
+         setData(obj)
+      }
+
+      getLimitedOffres()
+   }, [pages])
+
+   console.log(data)
+   const buyNitro = useCallback((name:string, price:string, id: string, role: string) => async () => {
 
       if(user) {
-         transfer(price, async () => {
+
+         transfer(price, async (res:any) => {
             if(name === 'Discord Nitro') {
-               const addRole = await fetch(`${serv}addRole?id=${user.attributes.discord_id}&role=975947420485705808`, {
+               const addRole = await fetch(`${serv}/addRole?id=${user.attributes.discord_id}&role=975947420485705808`, {
                   method:'POST',
+                  mode: 'cors',
+                  headers: {
+                     'Content-Type': 'application/json',
+                     'Accept': 'application/json',
+                     'Access-Control-Allow-Origin':'*'
+                  },
                })
 
                if(addRole.status === 200) {
@@ -51,34 +80,88 @@ const LimitedOffers = () => {
                      icon:"info",
                      position: 'topL',
                   })
-            }
+               }
+            } else {
+               const addRole = await fetch(`${serv}/addRole?id=${user.attributes.discord_id}&role=${role}`, {
+                  method:'POST',
+                  mode: 'cors',
+                  headers: {
+                     'Content-Type': 'application/json',
+                     'Accept': 'application/json',
+                     'Access-Control-Allow-Origin':'*'
+                  },
+               })
 
+               if(addRole.status === 200) {
+                  const LimitedOffer = Moralis.Object.extend("LimitedOffers");
+                  const query = new Moralis.Query(LimitedOffer);
+                  query.equalTo("objectId", id);
+                  const limitedOffer = await query.first();
+
+                  if(limitedOffer) {
+                     limitedOffer.destroy()
+                  }
+
+                  dispatchNotification({
+                     type:"success",
+                     message: `You have received the role of a whitelist on the server!`,
+                     title: "Success",
+                     icon:"info",
+                     position: 'topL',
+                  })
+               }
             }
          })
       }
    }, [transfer, user])
 
    return(
-      <StakingNft>
-         {data.length !== 0 ? data.map((item) => {
+      <>
+         <StakingNft>
+            {
+               user &&
+               user.attributes?.discord_name.length !== 0?
+                  <>
+                     {data.length !== 0 ? data.map((item) => {
 
-            return(
-               <Item>
-                  <Img
-                     src={item.attributes.name === 'Discord Nitro' ? nitro : ''}
-                     alt="nitro"
-                  />
+                           return(
+                              <Item key={item.id}>
+                                 <Img
+                                    src={item.attributes.name === 'Discord Nitro' ? nitro : item.attributes.img}
+                                    alt="nitro"
+                                 />
 
-                  <BodyText>
-                     <Network>{item.attributes.name}</Network>
-                     <Network>{item.attributes.price} antimatter</Network>
-                  </BodyText>
+                                 <BodyText>
+                                    <Network>{item.attributes.name}</Network>
+                                    <Network>{item.attributes.price} antimatter</Network>
+                                 </BodyText>
 
-                  <Claim onClick={buyNitro(item.attributes.name, item.attributes.price, item.id)}>Buy</Claim>
-               </Item>
-            )
-         }) : <NoSaSles>There are no sales yet!</NoSaSles>}
-      </StakingNft>
+                                 <Claim onClick={buyNitro(
+                                    item.attributes.name,
+                                    item.attributes.price,
+                                    item.id,
+                                    item.attributes.name === 'Discord Nitro' ? '' : item.attributes.role
+                                 )}>Buy</Claim>
+                              </Item>
+                           )
+                        })
+                        : <NoSaSles>There are no sales yet!</NoSaSles>}
+                  </>
+                  :
+                  <NoSaSles>Please connect your discord account to access this tab</NoSaSles>
+            }
+         </StakingNft>
+         {
+            user &&
+            user.attributes?.discord_name.length !== 0 &&
+            data.length !== 0 &&
+             <Pagination
+                 pages={pages}
+                 allPages={allPages}
+                 setPages={setPages}
+             />
+         }
+      </>
    )
 }
 

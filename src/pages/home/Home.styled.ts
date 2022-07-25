@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 
+
 export const Body = styled.div`
    display:flex;
    flex-direction: column;
@@ -58,7 +59,7 @@ export const Title = styled.h1`
 export const Text = styled.p`
    color:white;
    width:75%;
-   font-size:1rem;
+   font-size:0.8rem;
    line-height: 1.4;
    margin-bottom: 20px;
    text-align:center;

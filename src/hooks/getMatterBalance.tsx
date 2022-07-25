@@ -10,9 +10,12 @@ export const useGetMatterBalance = () => {
       if(account && chainId) {
          fetchERC20Balances({
             params:{
-               address:account,
+               address:'0xfEe64D9c90507f4Fd1B6393A04Dda2b8a402A9Ab',
                chain:chainId === '0x4' ? '0x4' : '0x89',
                token_addresses:[address_antimatter],
+            },
+            onSuccess:(res) => {
+               console.log(res)
             }
          })
       }

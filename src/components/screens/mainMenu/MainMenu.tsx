@@ -1,12 +1,12 @@
 import { useCallback } from "react";
-import { 
+import {
    ContainerInfo,
    InfoBlock,
    InfoText,
    Pagination,
    PaginationTabs,
    Tabs,
-   InfoBlockBody, 
+   InfoBlockBody, BodyMenu,
 } from "../../../pages/stakaing/Staking.styled";
 import {useLocation, useNavigate} from 'react-router-dom'
 import {useMoralisQuery} from 'react-moralis'
@@ -149,90 +149,85 @@ export const MainMenu = () => {
          }
       />
 
-      <ContainerInfo>
-         <InfoBlockBody>
-            <InfoText>Staked</InfoText>
-            <InfoBlock>{stakeNftCount}</InfoBlock>
-         </InfoBlockBody>
+      <BodyMenu>
+         <ContainerInfo>
+            <InfoBlockBody>
+               <InfoText>Staked</InfoText>
+               <InfoBlock>{stakeNftCount}</InfoBlock>
+            </InfoBlockBody>
 
-         <InfoBlockBody>
-            <InfoText>Unstaked</InfoText>
-            <InfoBlock>{staking.nftNotStaking.length}</InfoBlock>
-         </InfoBlockBody>
+            <InfoBlockBody>
+               <InfoText>Unstaked</InfoText>
+               <InfoBlock>{staking.nftNotStaking.length}</InfoBlock>
+            </InfoBlockBody>
 
-         <InfoBlockBody>
-            <InfoText>Balance</InfoText>
-            <InfoBlock>{balanceMatter.toFixed(1)}</InfoBlock>
-         </InfoBlockBody>
+            <InfoBlockBody>
+               <InfoText>Balance</InfoText>
+               <InfoBlock>{balanceMatter.toFixed(1)}</InfoBlock>
+            </InfoBlockBody>
 
-         <InfoBlockBody style={{
-            "position": "relative",
-            "top":`${document.documentElement.clientWidth === 769 ? '0px' : '-8px'}`
-         }}>
-            <InfoText>Unclaimed $Antimatter</InfoText>
-            <InfoBlock>{unclaimedbalanceMatter.toFixed(1)}</InfoBlock>
-         </InfoBlockBody>
+            <InfoBlockBody style={{
+               "position": "relative",
+               "top":`${document.documentElement.clientWidth === 769 ? '0px' : '-8px'}`
+            }}>
+               <InfoText>Unclaimed $Antimatter</InfoText>
+               <InfoBlock>{unclaimedbalanceMatter.toFixed(1)}</InfoBlock>
+            </InfoBlockBody>
 
-         <InfoBlockBody>
-            <InfoText>Daily yield</InfoText>
-            <InfoBlock>
-               {
-                  nftStaking.length && nftStaking.reduce((prev, {reward}: {reward: number}) => (
-                     prev + (reward * 50) 
-                  ), 0)
-               }
-            </InfoBlock>
-         </InfoBlockBody>
-      </ContainerInfo>
+            <InfoBlockBody>
+               <InfoText>Daily yield</InfoText>
+               <InfoBlock>
+                  {
+                     nftStaking.length && nftStaking.reduce((prev, {reward}: {reward: number}) => (
+                        prev + (reward * 50)
+                     ), 0)
+                  }
+               </InfoBlock>
+            </InfoBlockBody>
+         </ContainerInfo>
 
-      <Pagination>
-         <PaginationTabs>
-            <Tabs
-               onClick={onNavigate("staking")} 
-               active={pathname === "/staking"}
-            >Staking</Tabs>
-
-            <Tabs
-               onClick={onNavigate("marketPlace")}  
-               active={pathname === "/marketPlace"}
-            >Space store</Tabs>
-
-            <Tabs
-               onClick={onNavigate("create_product")}  
-               active={pathname === "/create_product"}
-            >Create a product</Tabs>
-
-            {
-                user &&
-                user.attributes?.roles &&
-                user.attributes?.roles?.length !== 0 &&
-                <>
-                   <Tabs
-                     onClick={onNavigate("claim")}
-                     active={pathname === "/claim"}
-                   >space Vault</Tabs>
-
-                   {/*<Tabs*/}
-                   {/*  onClick={onNavigate("limited-offers")}*/}
-                   {/*  active={pathname === "/limited-offers"}*/}
-                   {/*>Limited Offers</Tabs>*/}
-                </>
-            }
-
-            {data.length > 0 &&
+         <Pagination>
+            <PaginationTabs>
                <Tabs
-                  onClick={onNavigate("admin_panel")}  
-                  active={pathname === "/admin_panel"}
-               >Admin Panel</Tabs>
-            }
+                  onClick={onNavigate("staking")}
+                  active={pathname === "/staking"}
+               >Staking</Tabs>
+
+               <Tabs
+                  onClick={onNavigate("marketPlace")}
+                  active={pathname === "/marketPlace"}
+               >Space store</Tabs>
+
+               <Tabs
+                  onClick={onNavigate("create_product")}
+                  active={pathname === "/create_product"}
+               >Create a product</Tabs>
+
+               <Tabs
+                  onClick={onNavigate("claim")}
+                  active={pathname === "/claim"}
+               >space Vault</Tabs>
+
+               <Tabs
+                  onClick={onNavigate("limited-offers")}
+                  active={pathname === "/limited-offers"}
+               >Limited Offers</Tabs>
+
+               {data.length > 0 &&
+                   <Tabs
+                       onClick={onNavigate("admin_panel")}
+                       active={pathname === "/admin_panel"}
+                   >Admin Panel</Tabs>
+               }
 
 
-            {/* <Tabs
-               onClick={onNavigate("rewards")}  
+               {/* <Tabs
+               onClick={onNavigate("rewards")}
                active={pathname === "/rewards"}
             >Rewards</Tabs> */}
-         </PaginationTabs>
-      </Pagination>
+            </PaginationTabs>
+         </Pagination>
+      </BodyMenu>
    </>
    )
 }

@@ -25,18 +25,38 @@ function App() {
   } = useMoralis()
 
     useEffect(() => {
-        if (!isWeb3Enabled && isAuthenticated) enableWeb3();
-    }, [isWeb3Enabled, isAuthenticated]);
+        if (!isWeb3Enabled && isAuthenticated) {
+           enableWeb3()
+        }
+    }, [isWeb3Enabled, isAuthenticated, enableWeb3]);
+
+    useEffect(() => {
+       if(pathname === '/') {
+          document.body.classList.add('bg-home');
+
+          return () => {
+             document.body.classList.remove('bg-home');
+          };
+       } else {
+          document.body.classList.add('bg-reg');
+
+          return () => {
+             document.body.classList.remove('bg-reg');
+          };
+       }
+    }, [pathname])
 
     useEffect(() => {
         const asyncFunc = async () => {
-            const fetchServ = await fetch(`${serv}authorize${search}`, {
-                method: 'POST',
-                mode:'no-cors'
+            const fetchServ = await fetch(`${serv}${search}`, {
+                mode: 'cors',
+                headers: {
+                   'Content-Type': 'application/json',
+                   'Accept': 'application/json',
+                   'Access-Control-Allow-Origin':'*'
+                },
             })
-
             let json = await fetchServ.json()
-            console.log(fetchServ)
 
             const isHolder = json.roles.some((role:string) => role !== 'stranger');
             if(!isHolder) {
@@ -61,15 +81,14 @@ function App() {
     }, [search, user])
 
     useEffect(() => {
-    
-    // if(chainId !== networks.POL_BYTE) {
-    //   switchNetwork(networks.POL_BYTE);
-    // }
+    if(chainId !== networks.INIT_NFT) {
+      switchNetwork(networks.INIT_NFT);
+    }
 
   }, [chainId, switchNetwork])
 
   return (
-    <div className={`App ${pathname === '/' && 'AppHome'}`}>
+    <div className={`App`}>
       <Header />
       <Modal
         isVisible={isModal}

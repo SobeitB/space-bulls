@@ -17,37 +17,101 @@ body {
   font-family: 'Akira Expanded Demo';
 }
 
-html, body, #root, .App {
+html, #root{
   min-height: 100%;
 }
 
-.AppHome{
-  background-image: url(./assets/img/bgHomePk.png);
-  background-position: 50% 50%;
-  background-size: 100% 100%;
+body{
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.bg-home{
+  background-image: url(./pages/home/img/1920.png);
+}
+
+.bg-reg{
+  background-image: url(./assets/img/1920.png);
 }
 
 @media (max-width: 992px) {
-  .AppHome{
-    background-image: url(./assets/img/bgHome992.png);
+  .bg-reg{
+    background-image: url(./assets/img/1440.png);
+  }
+
+  .bg-home{
+    background-image: url(./pages/home/img/1440.png);
+  }
+}
+
+@media (max-width: 992px) {
+  .bg-reg{
+    background-image: url(./assets/img/992.png);
+  }
+
+  .bg-home{
+    background-image: url(./pages/home/img/992.png);
+  }
+}
+
+@media (max-width: 800px) {
+  .bg-reg{
+    background-image: url(./assets/img/800.png);
+  }
+
+  .bg-home{
+    background-image: url(./pages/home/img/800.png);
   }
 }
 
 @media (max-width: 768px) {
-  .AppHome{
-    background-image: url(./assets/img/bgHome768.png);
+  .bg-reg{
+    background-image: url(./assets/img/768.png);
+  }
+
+  .bg-home{
+    background-image: url(./pages/home/img/768.png);
+  }
+}
+
+@media (max-width: 600px) {
+  .bg-reg{
+    background-image: url(./assets/img/600.png);
+  }
+
+  .bg-home{
+    background-image: url(./pages/home/img/600.png);
   }
 }
 
 @media (max-width: 480px) {
-  .AppHome{
-    background-image: url(./assets/img/bgHome480.png);
+  .bg-reg{
+    background-image: url(./assets/img/480.png);
+  }
+
+  .bg-home{
+    background-image: url(./pages/home/img/480.png);
+  }
+}
+
+@media (max-width: 420px) {
+  .bg-reg{
+    background-image: url(./assets/img/420.png);
+  }
+
+  .bg-home{
+    background-image: url(./pages/home/img/420.png);
   }
 }
 
 @media (max-width: 320px) {
-  .AppHome{
-    background-image: url(./assets/img/bgHome320.png);
+  .bg-reg{
+    background-image: url(./assets/img/320.png);
+  }
+
+  .bg-home{
+    background-image: url(./pages/home/img/320.png);
   }
 }
 
